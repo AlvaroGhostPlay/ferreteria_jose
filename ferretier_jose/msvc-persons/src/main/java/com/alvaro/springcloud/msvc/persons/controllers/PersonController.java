@@ -1,0 +1,88 @@
+package com.alvaro.springcloud.msvc.persons.controllers;
+
+import com.alvaro.springcloud.msvc.persons.DTO.request.PersonCudDTO;
+import com.alvaro.springcloud.msvc.persons.DTO.response.PersonDataResponseDto;
+import com.alvaro.springcloud.msvc.persons.services.PersonService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Optional;
+import java.util.UUID;
+
+@RestController
+public class PersonController {
+
+    @Autowired
+    private PersonService personService;
+
+    @GetMapping("/clients")
+    public ResponseEntity<?> getPersonsClients(){
+        return ResponseEntity.ok().body(personService.findAllPersonsClient());
+    }
+
+    @GetMapping("/clientes/{page}")
+    public ResponseEntity<?> getPersonsClientsPage(@PathVariable int page){
+        Pageable pageable = PageRequest.of(page, 10);
+        return ResponseEntity.ok().body(personService.findAllPersonsClient(pageable));
+    }
+
+    @GetMapping("/suppliers")
+    public ResponseEntity<?> getPersonsSuppliers(){
+        return ResponseEntity.ok().body(personService.findAllPersonsSupplier());
+    }
+
+    @GetMapping("/supplier/{page}")
+    public ResponseEntity<?> getPersonsSuppliersPage(@PathVariable int page){
+        Pageable pageable = PageRequest.of(page, 10);
+        return ResponseEntity.ok().body(personService.findAllPersonsSupplier(pageable));
+    }
+
+    @GetMapping("/employees")
+    public ResponseEntity<?> getPersonsEmployees(){
+        return ResponseEntity.ok().body(personService.findAllPersonsEmployees());
+    }
+
+    @GetMapping("/employees/{page}")
+    public ResponseEntity<?> getPersonsEmployeesPage(@PathVariable int page){
+        Pageable pageable = PageRequest.of(page, 10);
+        return ResponseEntity.ok().body(personService.findAllPersonsEmployeesPage(pageable));
+    }
+
+    @GetMapping("/{email}")
+    public ResponseEntity<?> getPersonByEmail(@PathVariable String email){
+        Optional<PersonDataResponseDto> personOptional = personService.findByEmail(email);
+        return personOptional.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getPersonByEmail(@PathVariable UUID id){
+        Optional<PersonDataResponseDto> personOptional = personService.findPersonById(id);
+        return personOptional.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @PostMapping
+    public ResponseEntity<?> createPerson(@RequestBody PersonCudDTO personReq){
+        Optional<PersonDataResponseDto> personOptional = personService.savePerson(personReq);
+        return personOptional.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(201).build());
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updatePerson(@RequestBody PersonCudDTO personReq, @PathVariable UUID id){
+        Optional<PersonDataResponseDto> personOptional = personService.updatePerson(personReq, id);
+        return personOptional.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deletePerson(@PathVariable UUID id){
+        Optional<PersonDataResponseDto> personOptional = personService.deletePersonById(id);
+        return personOptional.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+}

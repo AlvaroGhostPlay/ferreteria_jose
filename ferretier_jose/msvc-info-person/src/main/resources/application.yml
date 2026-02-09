@@ -1,0 +1,39 @@
+spring:
+  application:
+    name: msvc-info-person
+
+  datasource:
+    url: jdbc:postgresql://localhost:5433/db_ferreteria
+    username: jose_ferreteria_app
+    password: 12345
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        default_schema: ferreteria
+    # hibernate:
+    #   ddl-auto: update
+
+server:
+  port: ${PORT:0}
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+
+      #management:
+      #tracing:
+      #sampling:
+      #probability: 1.0
+  # zipkin:
+  #   tracing:
+  #     endpoint: http://zipkin-server:9411/api/v2/spans
+
+config:
+  baseurl:
+    endpoint:
+      msvc-catalog: http://msvccatalog
