@@ -21,17 +21,16 @@ public class Address {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "addres_id")
+    @Column(name = "address_id")
     private UUID addressId;
 
-    @NotBlank
     @Column(name = "id_person")
-    @NotBlank
+    @NotNull
     private UUID idPerson;
 
-    @NotNull
+    @NotBlank
     @Column(name = "id_address_type")
-    private Integer idAddressType;
+    private String idAddressType;
 
     @NotNull
     @Column(name = "is_primary")
@@ -41,7 +40,6 @@ public class Address {
     @Column(name = "line1")
     private String line1;
 
-    @NotBlank
     @Column(name = "line2")
     private String line2;
 
@@ -61,7 +59,6 @@ public class Address {
     @Column(name = "postal_code")
     private String postalCode;
 
-    @NotBlank
     @Column(name = "reference")
     private String reference;
 
@@ -73,27 +70,27 @@ public class Address {
     @Column(name = "updated_at")
     private LocalDate updateAt;
 
-    public @NotBlank UUID getAddressId() {
+    public UUID getAddressId() {
         return addressId;
     }
 
-    public void setAddressId(@NotBlank UUID addressId) {
+    public void setAddressId(UUID addressId) {
         this.addressId = addressId;
     }
 
-    public @NotBlank @NotBlank UUID getIdPerson() {
+    public @NotNull UUID getIdPerson() {
         return idPerson;
     }
 
-    public void setIdPerson(@NotBlank @NotBlank UUID idPerson) {
+    public void setIdPerson(@NotNull UUID idPerson) {
         this.idPerson = idPerson;
     }
 
-    public @NotNull Integer getIdAddressType() {
+    public @NotBlank String getIdAddressType() {
         return idAddressType;
     }
 
-    public void setIdAddressType(@NotNull Integer idAddressType) {
+    public void setIdAddressType(@NotBlank String idAddressType) {
         this.idAddressType = idAddressType;
     }
 
@@ -113,11 +110,11 @@ public class Address {
         this.line1 = line1;
     }
 
-    public @NotBlank String getLine2() {
+    public String getLine2() {
         return line2;
     }
 
-    public void setLine2(@NotBlank String line2) {
+    public void setLine2(String line2) {
         this.line2 = line2;
     }
 
@@ -153,11 +150,11 @@ public class Address {
         this.postalCode = postalCode;
     }
 
-    public @NotBlank String getReference() {
+    public String getReference() {
         return reference;
     }
 
-    public void setReference(@NotBlank String reference) {
+    public void setReference(String reference) {
         this.reference = reference;
     }
 

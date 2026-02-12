@@ -4,7 +4,7 @@ spring:
 
   datasource:
     url: jdbc:postgresql://localhost:5433/db_ferreteria
-    username: jose_ferreteria_app
+    username: postgres
     password: 12345
     driver-class-name: org.postgresql.Driver
 

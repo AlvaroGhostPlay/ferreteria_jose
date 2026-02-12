@@ -8,11 +8,11 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface PhoneRepository extends JpaRepository<Phone, UUID> {
-    List<Phone> findByPersonId(UUID personId);
+    List<Phone> findByIdPerson(UUID personId);
     Optional<Phone> findFirstByIdPerson(UUID personId);
     void deleteByIdPerson(UUID personId);
     void deleteByPhoneId(UUID personId);
     Optional<Phone> findByPhoneId(UUID phoneId);
-    Optional<Phone> findByPhone(String phone);
+    Optional<Phone> findByPhoneNumber(String phone);
     Optional<Phone> findByIdPersonAndPhoneNumber(UUID idPerson, String idPhoneType);
 }

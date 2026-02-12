@@ -23,24 +23,25 @@ public class Phone {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID phoneId;
 
-    @NotBlank
+    @NotNull
     @Column(name = "id_person")
     private UUID idPerson;
 
     @NotBlank
-    @Column(name = "id_person_type")
+    @Column(name = "id_phone_type")
     private String idPhoneType;
 
     @NotBlank
-    @Column(name = "phone")
+    @Column(name = "phone", unique = true)
     private String phoneNumber;
 
     @NotNull
     @Column(name = "enabled")
     private Boolean enabled;
 
-    @Column(name = "create_at")
+    @Column(name = "cerated_at")
     private LocalDate createAt;
+
     @Column(name = "updated_at")
     private LocalDate updateAt;
 
@@ -52,11 +53,11 @@ public class Phone {
         this.phoneId = phoneId;
     }
 
-    public @NotBlank UUID getIdPerson() {
+    public @NotNull UUID getIdPerson() {
         return idPerson;
     }
 
-    public void setIdPerson(@NotBlank UUID idPerson) {
+    public void setIdPerson(@NotNull UUID idPerson) {
         this.idPerson = idPerson;
     }
 

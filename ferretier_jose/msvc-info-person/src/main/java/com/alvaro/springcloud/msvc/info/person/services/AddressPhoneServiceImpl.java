@@ -7,6 +7,9 @@ import com.alvaro.springcloud.msvc.info.person.entities.Phone;
 import com.alvaro.springcloud.msvc.info.person.repositories.AddressRepository;
 import com.alvaro.springcloud.msvc.info.person.repositories.PhoneRepository;
 import jakarta.validation.constraints.NotNull;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -33,10 +36,13 @@ public class AddressPhoneServiceImpl implements AddressPhoneService {
     public Optional<AddressPhoneResponse> findByIdAll(UUID id) {
         AddressPhoneResponse response = new AddressPhoneResponse();
 
-        List<AddressDTO> addresses = addressRepository.findByPersonId(id).stream().map(this::mapperAddresDTO).toList();
-        List<PhoneDTO> phones = phoneRepository.findByPersonId(id).stream().map(this::mapperPhoneDTO).toList();
+        List<AddressDTO> addresses = addressRepository.findByIdPerson(id).stream().map(this::mapperAddresDTO).toList();
+        List<PhoneDTO> phones = phoneRepository.findByIdPerson(id).stream().map(this::mapperPhoneDTO).toList();
 
-        if (addresses == null && phones ==null) {
+        System.out.println(addresses);
+        System.out.println(phones);
+
+        if (addresses == null && phones == null) {
             return Optional.empty();
         }
 
@@ -49,13 +55,13 @@ public class AddressPhoneServiceImpl implements AddressPhoneService {
     @Transactional(readOnly = true)
     @Override
     public List<AddressDTO> findByIdAllAddress(UUID id) {
-        return addressRepository.findByPersonId(id).stream().map(this::mapperAddresDTO).toList();
+        return addressRepository.findByIdPerson(id).stream().map(this::mapperAddresDTO).toList();
     }
 
     @Transactional(readOnly = true)
     @Override
     public List<PhoneDTO> findByIdAllPhones(UUID id) {
-        return phoneRepository.findByPersonId(id).stream().map(this::mapperPhoneDTO).toList();
+        return phoneRepository.findByIdPerson(id).stream().map(this::mapperPhoneDTO).toList();
     }
 
     @Transactional(readOnly = true)
@@ -97,7 +103,7 @@ public class AddressPhoneServiceImpl implements AddressPhoneService {
             }
         }
 
-            List<PhoneDTO> phones = new ArrayList<>();
+        List<PhoneDTO> phones = new ArrayList<>();
         if (request.getPhones() != null) {
             for (Phone pn : request.getPhones()) {
                 Phone p = new Phone();
@@ -140,7 +146,7 @@ public class AddressPhoneServiceImpl implements AddressPhoneService {
             }
         }
 
-            List<PhoneDTO> phones = new ArrayList<>();
+        List<PhoneDTO> phones = new ArrayList<>();
         if (request.getPhones() != null) {
             for (Phone pn : request.getPhones()) {
                 Phone p = phoneRepository.findByPhoneId(pn.getPhoneId()).orElseThrow();
@@ -163,14 +169,14 @@ public class AddressPhoneServiceImpl implements AddressPhoneService {
     public Optional<AddressPhoneResponse> deleteAll(UUID id) {
         AddressPhoneResponse response = new AddressPhoneResponse();
 
-        List<AddressDTO> addresses = addressRepository.findByPersonId(id).stream().map(this::mapperAddresDTO).toList();
-        List<PhoneDTO> phones = phoneRepository.findByPersonId(id).stream().map(this::mapperPhoneDTO).toList();
-        
+        List<AddressDTO> addresses = addressRepository.findByIdPerson(id).stream().map(this::mapperAddresDTO).toList();
+        List<PhoneDTO> phones = phoneRepository.findByIdPerson(id).stream().map(this::mapperPhoneDTO).toList();
+
         if (addresses.isEmpty() && phones.isEmpty()) {
             return Optional.empty();
         }
-        
-        addressRepository.deleteByPersonId(id);
+
+        addressRepository.deleteByIdPerson(id);
         phoneRepository.deleteByIdPerson(id);
 
         response.setAddresses(addresses);
@@ -183,9 +189,9 @@ public class AddressPhoneServiceImpl implements AddressPhoneService {
     public List<AddressDTO> deleteAllAddress(UUID id) {
         Optional<Address> address = addressRepository.findFirstByIdPerson(id);
         if (address.isPresent()) {
-            List<AddressDTO> addresses = addressRepository.findByPersonId(id).stream().map(this::mapperAddresDTO)
+            List<AddressDTO> addresses = addressRepository.findByIdPerson(id).stream().map(this::mapperAddresDTO)
                     .toList();
-            addressRepository.deleteByPersonId(id);
+            addressRepository.deleteByIdPerson(id);
             return addresses;
         }
         return null;
@@ -196,8 +202,8 @@ public class AddressPhoneServiceImpl implements AddressPhoneService {
     public List<PhoneDTO> deleteAllPhones(UUID id) {
         Optional<Phone> phone = phoneRepository.findFirstByIdPerson(id);
         if (phone.isPresent()) {
-            List<PhoneDTO> phones = phoneRepository.findByPersonId(id).stream().map(this::mapperPhoneDTO).toList();
-            addressRepository.deleteByPersonId(id);
+            List<PhoneDTO> phones = phoneRepository.findByIdPerson(id).stream().map(this::mapperPhoneDTO).toList();
+            addressRepository.deleteByIdPerson(id);
             return phones;
         }
         return null;
@@ -206,7 +212,7 @@ public class AddressPhoneServiceImpl implements AddressPhoneService {
     @Transactional
     @Override
     public Optional<AddressDTO> saveAddress(Address request) {
-        String uri = "/addres-type";
+        String uri = "/address-type";
         Optional<AddressTypeDTO> type = getCatalog(uri, request.getIdAddressType(), AddressTypeDTO.class);
         if (type.isEmpty()) {
 
@@ -214,7 +220,6 @@ public class AddressPhoneServiceImpl implements AddressPhoneService {
         Optional<Address> error = addressRepository.findByIdPersonAndIdAddressType(request.getIdPerson(),
                 request.getIdAddressType());
         if (error.isPresent()) {
-
         }
 
         Address a = new Address();
@@ -261,7 +266,7 @@ public class AddressPhoneServiceImpl implements AddressPhoneService {
     public Optional<AddressDTO> deleteAddress(UUID id) {
         Optional<Address> addressDb = addressRepository.findByAddressId(id);
         if (addressDb.isPresent()) {
-            addressRepository.deleteByPersonId(id);
+            addressRepository.deleteByIdPerson(id);
             return Optional.of(mapperAddresDTO(addressDb.get()));
         }
         return Optional.empty();
@@ -297,7 +302,7 @@ public class AddressPhoneServiceImpl implements AddressPhoneService {
     public Optional<PhoneDTO> updatePhone(Phone request, UUID id) {
         Optional<Phone> phoneOP = phoneRepository.findByPhoneId(id);
         if (phoneOP.isPresent()) {
-            Optional<Phone> error = phoneRepository.findByPhone(request.getPhoneNumber());
+            Optional<Phone> error = phoneRepository.findByPhoneNumber(request.getPhoneNumber());
             if (error.isPresent()) {
                 // lanzar error
             }
@@ -322,7 +327,7 @@ public class AddressPhoneServiceImpl implements AddressPhoneService {
     }
 
     private AddressDTO mapperAddresDTO(Address address) {
-        String uri = "/addres-type";
+        String uri = "/address-type";
         Optional<AddressTypeDTO> addressTypeDTO = getCatalog(uri, address.getIdAddressType(), AddressTypeDTO.class);
 
         return new AddressDTO(address.getAddressId(),

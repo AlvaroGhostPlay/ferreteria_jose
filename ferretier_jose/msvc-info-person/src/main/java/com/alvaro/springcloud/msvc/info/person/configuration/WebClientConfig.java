@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.function.client.WebClient;
 
 @Configuration
-public class WebClientConfiguration {
+public class WebClientConfig {
     @Value("${config.baseurl.endpoint.msvc-catalog}")
     private String url;
 

@@ -8,9 +8,9 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface AddressRepository extends JpaRepository<Address, UUID> {
-    List<Address> findByPersonId(UUID personId);
+    List<Address> findByIdPerson(UUID personId);
     Optional<Address> findFirstByIdPerson(UUID personId);
     Optional<Address> findByAddressId(UUID AddresId);
-    Optional<Address> findByIdPersonAndIdAddressType(UUID personId, Integer idAddressType);
-    void deleteByPersonId(UUID personId);
+    Optional<Address> findByIdPersonAndIdAddressType(UUID personId, String idAddressType);
+    void deleteByIdPerson(UUID personId);
 }
