@@ -11,8 +11,6 @@ public record PersonNaturalDTO(
         String seccondLastName,
         String marriedLastName,
         GenerDTO Gener,
-        StatusSocialDTO statusSocial,
-        DocumentTypeDTO DocumentType,
-        String documentPerson
+        StatusSocialDTO statusSocial
 ) {
 }

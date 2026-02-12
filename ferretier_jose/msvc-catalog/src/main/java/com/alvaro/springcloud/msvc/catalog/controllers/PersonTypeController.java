@@ -2,6 +2,9 @@ package com.alvaro.springcloud.msvc.catalog.controllers;
 
 import com.alvaro.springcloud.msvc.catalog.entities.PersonType;
 import com.alvaro.springcloud.msvc.catalog.services.person_type.PersonTypeService;
+
+import jakarta.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -35,7 +38,7 @@ public class PersonTypeController {
     }
 
     @PostMapping
-    public ResponseEntity<?> save(@RequestBody PersonType request){
+    public ResponseEntity<?> save(@Valid @RequestBody PersonType request){
         Optional<PersonType> response = personTypeService.save(request);
         return response.map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.status(201).build());

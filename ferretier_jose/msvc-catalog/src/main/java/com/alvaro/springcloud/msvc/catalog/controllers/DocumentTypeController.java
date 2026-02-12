@@ -18,7 +18,7 @@ public class DocumentTypeController {
     private DocumentTypeService documentTypeService;
 
     @GetMapping("/page/{page}")
-    public ResponseEntity<?> getAllDocumentTypePage(@RequestParam int page) {
+    public ResponseEntity<?> getAllDocumentTypePage(@PathVariable int page) {
         Pageable pageable = PageRequest.of(page, 10);
         return ResponseEntity.ok().body(documentTypeService.getAllDocumentTypePage(pageable));
     }

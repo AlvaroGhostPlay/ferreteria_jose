@@ -1,0 +1,115 @@
+resilience4j:
+  circuitbreaker:
+    configs:
+        default:
+            slidingWindowSize: 6 #numero de llamadas que se van a tener en cuenta para calcular el porcentaje de fallos
+            slowCallRateThreshold: 50 #porcentaje de llamadas lentas para cerrar el circuito
+            waitDurationInOpenState: 20s #timepo en que esta en circuito cerrado
+            permittedNumberOfCallsInHalfOpenState: 4 #numero de llamadas que se permiten en estado semi abierto
+            slowCallDurationThreshold: 3s #tiempo maximo para considerar una llamada lenta
+            failureRateThreshold: 50 #porcentaje de fallos para abrir el circuito
+    instances:
+        products: #nombre del del circuto
+            baseConfig: default #nombre de la configuracion por defecto
+  timelimiter:
+    configs:
+        default:
+            timeoutDuration: 3s #tiempo maximo de espera time out y es primero antes que llamada lenta
+    instances:
+        products:
+            baseConfig: default
+
+spring:
+  application:
+    name: msvc-gateway-server
+  cloud:
+    gateway:
+      routes:
+          - id: msvc-oauth
+            uri: lb://msvc-oauth
+            predicates:
+              - Path=/api/security/**
+            filters:
+              - StripPrefix=2
+
+
+          - id: msvc-users
+            uri: lb://msvc-users
+            predicates:
+              - Path=/api/users/**
+            filters:
+              - StripPrefix=2
+
+
+          - id: msvc-persons
+            uri: lb://msvc-persons
+            predicates:
+              - Path=/api/persons/**
+            filters:
+              - name: CircuitBreaker
+                args:
+                  #name: products
+                  #statusCodes: 500
+                  #fallbackUri: forward:/api/items/5
+              - StripPrefix=2
+
+          - id: msvc-catalog
+            uri: lb://msvc-catalog
+            predicates:
+              - Path=/api/catalog/**
+            filters:
+              - StripPrefix=2
+
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://127.0.0.1:9100
+          #issuer-uri: http://172.17.0.1:9100
+          #issuer-uri: http://msvc-oauth:9100 docker
+          #issuer-uri: http://192.168.56.1:9100
+          #jwk-set-uri: http://host.docker.internal:9100/oauth2/jwks
+      client:
+        registration:
+          client-app:
+            provider: spring
+            client-id: gateway-app
+            client-secret: 123456
+            authorization-grant-type: authorization_code
+            #redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            redirect-uri: http://localhost:8090/authorized
+            #redirect-uri: http://127.0.0.1:8090/authorized
+            #redirect-uri: http://localhost:8090/login/oauth2/code/client-app
+            scope:
+              - openid
+              - profile
+            client-name: client-app
+        provider:
+          spring:
+            #issuer-uri: http://172.17.0.1:9100
+            #issuer-uri: http://msvc-oauth:9100 docker
+            #issuer-uri: http://127.0.0.1:9100
+            #issuer-uri: http://192.168.56.1:9100
+            authorization-uri: http://localhost:9100/oauth2/authorize
+            token-uri: http://host.docker.internal:9100/oauth2/token
+            jwk-set-uri: http://host.docker.internal:9100/oauth2/jwks
+
+server:
+  port: 8090
+
+eureka:
+  client:
+    service-url:
+      #defaultZone: http://localhost:8761/eureka
+      defaultZone: http://eureka-server:8761/eureka
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,gateway
+
+  endpoint:
+    gateway:
+      access: unrestricted

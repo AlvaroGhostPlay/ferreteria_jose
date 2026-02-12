@@ -6,8 +6,6 @@ public record PersonLegalDTO(
         UUID personId,
         String legalName,
         String comercialName,
-        DocumentTypeDTO documentType,
-        String nit,
         DocumentTypeDTO documentTypeRepre,
         String representativeLegalDocument
 ) {

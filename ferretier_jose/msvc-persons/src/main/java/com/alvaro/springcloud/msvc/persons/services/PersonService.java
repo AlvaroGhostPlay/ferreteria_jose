@@ -1,6 +1,7 @@
 package com.alvaro.springcloud.msvc.persons.services;
 
 import com.alvaro.springcloud.msvc.persons.DTO.request.PersonCudDTO;
+import com.alvaro.springcloud.msvc.persons.DTO.response.PersonDTO;
 import com.alvaro.springcloud.msvc.persons.DTO.response.PersonDataResponseDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -12,6 +13,8 @@ import java.util.UUID;
 public interface PersonService {
     List<PersonDataResponseDto> findAllPersonsClient();
     Page<PersonDataResponseDto> findAllPersonsClient(Pageable pageable);
+
+    Page<PersonDTO> findAllPersonsClients(Pageable pageable);
 
     List<PersonDataResponseDto> findAllPersonsSupplier();
     Page<PersonDataResponseDto> findAllPersonsSupplier(Pageable pageable);

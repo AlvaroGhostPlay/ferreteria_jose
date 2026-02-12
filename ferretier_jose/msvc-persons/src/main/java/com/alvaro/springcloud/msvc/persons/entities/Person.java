@@ -2,16 +2,25 @@ package com.alvaro.springcloud.msvc.persons.entities;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 
 import java.time.LocalDate;
 import java.util.UUID;
 
 @Entity
-@Table(name = "persons")
+@Table(
+        name = "persons",
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = "uk_persons_id_document_type_person_document",
+                        columnNames = {"id_document_type", "person_document"}
+                )
+        }
+)
 public class Person {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "id", updatable = false, nullable = false)
+    @Column(name = "person_id", updatable = false, nullable = false)
     private UUID personId;
     private String idPersonType;
     private Boolean isClient;
@@ -19,15 +28,30 @@ public class Person {
     private Boolean isEmployee;
     private Boolean enabled;
     private LocalDate crateAt;
+    private String name;
 
     @Email
     @Column(unique = true, nullable = false)
     private String email;
 
-    @OneToOne(mappedBy = "person", fetch = FetchType.LAZY, optional = true)
+    @Column(name = "id_document_type", nullable = false, length = 1)
+    @NotBlank
+    private String idDocumentType;
+
+    @Column(name = "person_document", nullable = false, length = 18)
+    @NotBlank
+    private String personDocument;
+
+    @OneToOne(mappedBy = "person",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY)
     private PersonNatural personNatural;
 
-    @OneToOne(mappedBy = "person", fetch = FetchType.LAZY, optional = true)
+    @OneToOne(mappedBy = "person",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY)
     private PersonLegal personLegal;
 
     public UUID getPersonId() {
@@ -108,5 +132,29 @@ public class Person {
 
     public void setPersonLegal(PersonLegal personLegal) {
         this.personLegal = personLegal;
+    }
+
+    public String getIdDocumentType() {
+        return idDocumentType;
+    }
+
+    public void setIdDocumentType(String idDocumentType) {
+        this.idDocumentType = idDocumentType;
+    }
+
+    public String getPersonDocument() {
+        return personDocument;
+    }
+
+    public void setPersonDocument(String personDocument) {
+        this.personDocument = personDocument;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

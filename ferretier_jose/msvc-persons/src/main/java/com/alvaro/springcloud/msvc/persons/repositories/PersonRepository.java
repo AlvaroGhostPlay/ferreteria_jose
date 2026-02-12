@@ -39,11 +39,8 @@ public interface PersonRepository extends JpaRepository<Person, UUID> {
     @Query("""
         select p from Person p
             where p.personId = :id
-            and p.isClient = :isClient
-            and p.isSupplier = :isSupplier
-            and p.isEmployee = :isEmployee
         """)
-    Optional<Person> findByIdEsp(@Param("idPersonType") UUID id);
+    Optional<Person> findByIdEsp(UUID id);
 
     @Query("""
         select p from Person p

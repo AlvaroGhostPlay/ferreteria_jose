@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Optional;
 import java.util.UUID;
 
+@CrossOrigin(origins = "http://localhost:4200")
 @RestController
 public class PersonController {
 
@@ -19,8 +20,14 @@ public class PersonController {
     private PersonService personService;
 
     @GetMapping("/clients")
-    public ResponseEntity<?> getPersonsClients(){
+    public ResponseEntity<?> getClients(){
         return ResponseEntity.ok().body(personService.findAllPersonsClient());
+    }
+
+    @GetMapping("/person-clients/{page}")
+    public ResponseEntity<?> getPersonsClients(@PathVariable int page){
+        Pageable pageable = PageRequest.of(page, 10);
+        return ResponseEntity.ok().body(personService.findAllPersonsClients(pageable));
     }
 
     @GetMapping("/clientes/{page}")
@@ -51,7 +58,7 @@ public class PersonController {
         return ResponseEntity.ok().body(personService.findAllPersonsEmployeesPage(pageable));
     }
 
-    @GetMapping("/{email}")
+    @GetMapping("/email/{email}")
     public ResponseEntity<?> getPersonByEmail(@PathVariable String email){
         Optional<PersonDataResponseDto> personOptional = personService.findByEmail(email);
         return personOptional.map(ResponseEntity::ok)

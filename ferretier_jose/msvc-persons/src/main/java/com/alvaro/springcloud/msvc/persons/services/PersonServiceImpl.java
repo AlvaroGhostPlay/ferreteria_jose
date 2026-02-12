@@ -51,6 +51,16 @@ public class PersonServiceImpl implements PersonService {
 
     @Transactional(readOnly = true)
     @Override
+    public Page<PersonDTO> findAllPersonsClients(Pageable pageable) {
+        Page<Person> listPersons = personRepository.findByIsClientPage(pageable);
+
+        return listPersons.map(person -> {
+            return getPersonDTO(person);
+        });
+    }
+
+    @Transactional(readOnly = true)
+    @Override
     public List<PersonDataResponseDto> findAllPersonsSupplier() {
         return mapList(personRepository::findByIsSupplier);
     }
@@ -157,31 +167,35 @@ public class PersonServiceImpl implements PersonService {
 
 
     @NotNull
-    private static PersonDTO getPersonDTO(Person person) {
-        PersonDTO personDTO = new PersonDTO(
+    private PersonDTO getPersonDTO(Person person) {
+        String uri = "/person-type";
+        Optional<?> personType = getCatalog(uri, person.getIdPersonType(), PersonTypeDTO.class);
+        PersonTypeDTO personTypeDTO = null;
+        if (personType.isPresent()) {
+            personTypeDTO = (PersonTypeDTO) personType.get();
+        }
+        DocumentTypeDTO documentTypeDTO = null;
+        uri = "/document-type";
+        Optional<?> documentType = getCatalog(uri, person.getIdDocumentType(), DocumentTypeDTO.class);
+        if (documentType.isPresent()) {
+            documentTypeDTO = (DocumentTypeDTO) documentType.get();
+        }
+
+        return new PersonDTO(
                 person.getPersonId(),
-                person.getIdPersonType(),
-                person.getClient(),
-                person.getSupplier(),
-                person.getEmployee(),
                 person.getEnabled(),
-                person.getCrateAt(),
-                person.getEmail());
-        return personDTO;
+                person.getName(),
+                person.getEmail(),
+                personTypeDTO,
+                documentTypeDTO,
+                person.getPersonDocument());
     }
 
     @NotNull
     private PersonLegalDTO getPersonLegalDTO(PersonLegal personLegal) {
         PersonLegalDTO personLegalDTO;
-        String uri = "/person-type";
-        Optional<?> document = getCatalog(uri, personLegal.getTypeDocument(), DocumentTypeDTO.class);
-        DocumentTypeDTO documentType = null;
-        if (document.isPresent()) {
-            documentType = (DocumentTypeDTO) document.get();
-        }
-
-        uri = "/person-type";
-        document = getCatalog(uri, personLegal.getTypeDocument(), DocumentTypeDTO.class);
+        String uri = "/document-type";
+        Optional<?> document = getCatalog(uri, personLegal.getIdTypeDocument(), DocumentTypeDTO.class);
         DocumentTypeDTO documentTypeRepre = null;
         if (document.isPresent()) {
             documentTypeRepre = (DocumentTypeDTO) document.get();
@@ -191,8 +205,6 @@ public class PersonServiceImpl implements PersonService {
                 personLegal.getPersonId(),
                 personLegal.getLegalName(),
                 personLegal.getComercialName(),
-                documentType,
-                personLegal.getNit(),
                 documentTypeRepre,
                 personLegal.getRepresentativeLegalDocument());
         return personLegalDTO;
@@ -201,21 +213,14 @@ public class PersonServiceImpl implements PersonService {
     @NotNull
     private PersonNaturalDTO getPersonNaturalDTO(PersonNatural personNatural) {
         PersonNaturalDTO personNaturalDTO;
-        String uri = "/person-type";
-        Optional<?> document = getCatalog(uri, personNatural.getIdDocumentType(), DocumentTypeDTO.class);
-        DocumentTypeDTO documentType = null;
-        if (document.isPresent()) {
-            documentType = (DocumentTypeDTO) document.get();
-        }
-
-        uri = "/gener";
-        document = getCatalog(uri, personNatural.getIdGener(), GenerDTO.class);
+        String  uri = "/gener";
+        Optional<?> document = getCatalog(uri, personNatural.getIdGener(), GenerDTO.class);
         GenerDTO gener = null;
         if (document.isPresent()) {
             gener = (GenerDTO) document.get();
         }
 
-        uri = "/status";
+        uri = "/social-status";
         document = getCatalog(uri, personNatural.getIdSocialStatus(), StatusSocialDTO.class);
         StatusSocialDTO status = null;
         if (document.isPresent()) {
@@ -231,9 +236,7 @@ public class PersonServiceImpl implements PersonService {
                 personNatural.getSeccondLastName(),
                 personNatural.getMarriedLastName(),
                 gener,
-                status,
-                documentType,
-                personNatural.getDocumentPerson());
+                status);
         return personNaturalDTO;
     }
 
@@ -293,15 +296,23 @@ public class PersonServiceImpl implements PersonService {
     @NotNull
     private Optional<PersonDataResponseDto> savePerson(PersonCudDTO personReq, Person presonDb, UUID id) {
         Person p = presonDb;
+        System.out.println(personReq.getClient());
+        System.out.println(personReq.getEmployee());
+        System.out.println(personReq.getSupplier());
 
         p.setIdPersonType(personReq.getIdPersonType());
-        p.setClient(Boolean.TRUE.equals(personReq.getClient()));
-        p.setSupplier(Boolean.TRUE.equals(personReq.getSupplier()));
-        p.setEmployee(Boolean.TRUE.equals(personReq.getEmployee()));
-        p.setEnabled(personReq.getEnabled());
+        p.setClient(personReq.getClient());
+        p.setSupplier(personReq.getSupplier());
+        p.setEmployee(personReq.getEmployee());
+        p.setEnabled(personReq.isEnabled());
         p.setEmail(personReq.getEmail());
         p.setCrateAt(LocalDate.now());
-        personRepository.save(p);
+        p.setName(personReq.getName());
+        p.setIdDocumentType(personReq.getIdDocumentType());
+        p.setPersonDocument(personReq.getDocumentType());
+        Person person = personRepository.save(p);
+        personRepository.flush();
+        System.out.println(person.getPersonId());
 
         if (personReq.getKind() == PersonKind.NATURAL) {
             PersonNatural pn = null;
@@ -313,7 +324,7 @@ public class PersonServiceImpl implements PersonService {
                     return Optional.empty();
                 }
             }
-            pn.setPerson(p); // <- con @MapsId esto fija id_person = p.id
+            pn.setPerson(person); // <- con @MapsId esto fija id_person = p.id
 
             var nd = personReq.getPersonNaturalData();
             pn.setFirstName(nd.getFirstName());
@@ -324,9 +335,9 @@ public class PersonServiceImpl implements PersonService {
             pn.setMarriedLastName(nd.getMarriedLastName());
             pn.setIdGener(nd.getIdGener());
             pn.setIdSocialStatus(nd.getIdSocialStatus());
-            pn.setIdDocumentType(nd.getIdDocumentType());
-            pn.setDocumentPerson(nd.getDocumentPerson());
             personLegalRespository.deleteById(p.getPersonId());
+            pn.setPerson(person);
+            person.setPersonNatural(pn);
             personNaturalRepository.save(pn);
         } else {
             PersonLegal l = null;
@@ -338,17 +349,18 @@ public class PersonServiceImpl implements PersonService {
                     return Optional.empty();
                 }
             }
-            l.setPerson(p);
+            l.setPerson(person);
 
             var ld = personReq.getPersonLegalData();
             l.setLegalName(ld.getLegalName());
             l.setComercialName(ld.getComercialName());
-            l.setIdTypeDocument(ld.getIdTypeDocument());
-            l.setNit(ld.getNit());
+            l.setIdTypeDocument(ld.getIdDocumentTypeRepresentative());
             l.setRepresentativeLegalDocument(ld.getRepresentativeLegalDocument());
+            l.setPerson(person);
+            person.setPersonLegal(l);
             personNaturalRepository.deleteById(p.getPersonId());
             personLegalRespository.save(l);
         }
-        return mapOptional(p);
+        return mapOptional(person);
     }
 }

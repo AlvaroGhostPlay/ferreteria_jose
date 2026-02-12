@@ -5,12 +5,11 @@ import java.util.UUID;
 
 public record PersonDTO(
         UUID personId,
-        String idPersonType,
-        Boolean isClient,
-        Boolean isSupplier,
-        Boolean isEmployee,
         Boolean enabled,
-        LocalDate crateAt,
-        String email
+        String name,
+        String email,
+        PersonTypeDTO person,
+        DocumentTypeDTO documentType,
+        String document
 ) {
 }

@@ -11,8 +11,11 @@ public class PersonCudDTO {
     @NotBlank
     private String idPersonType;
 
+    @NotNull
     private Boolean isClient;
+    @NotNull
     private Boolean isSupplier;
+    @NotNull
     private Boolean isEmployee;
 
     @NotNull
@@ -21,6 +24,15 @@ public class PersonCudDTO {
     @Email
     @NotBlank
     private String email;
+
+    @NotBlank
+    private String idDocumentType;
+
+    @NotBlank
+    private String documentType;
+
+    @NotBlank
+    private String name;
 
     @Valid
     private NaturalData personNaturalData;
@@ -35,8 +47,6 @@ public class PersonCudDTO {
         @NotBlank private String firstName;
         @NotBlank private String lastName;
         @NotBlank private String idGener;
-        @NotBlank private String idDocumentType;
-        @NotBlank private String documentPerson;
         @NotBlank private String middleName;
         @NotBlank private String secondLastName;
         @NotBlank private String idSocialStatus;
@@ -66,22 +76,6 @@ public class PersonCudDTO {
 
         public void setIdGener(String idGener) {
             this.idGener = idGener;
-        }
-
-        public String getIdDocumentType() {
-            return idDocumentType;
-        }
-
-        public void setIdDocumentType(String idDocumentType) {
-            this.idDocumentType = idDocumentType;
-        }
-
-        public String getDocumentPerson() {
-            return documentPerson;
-        }
-
-        public void setDocumentPerson(String documentPerson) {
-            this.documentPerson = documentPerson;
         }
 
         public String getMiddleName() {
@@ -133,9 +127,16 @@ public class PersonCudDTO {
     public static class LegalData {
         @NotBlank private String legalName;
         @NotBlank private String comercialName;
-        @NotBlank private String idTypeDocument;
-        @NotBlank private String nit;
+        @NotBlank private String idDocumentTypeRepresentative;
         @NotBlank private String representativeLegalDocument;
+
+        public void setIdDocumentTypeRepresentative(String idDocumentTypeRepresentative){
+            this.idDocumentTypeRepresentative = idDocumentTypeRepresentative;
+        }
+
+        public String getIdDocumentTypeRepresentative(){
+            return this.idDocumentTypeRepresentative;
+        }
 
         public String getLegalName() {
             return legalName;
@@ -153,22 +154,6 @@ public class PersonCudDTO {
             this.comercialName = comercialName;
         }
 
-        public String getIdTypeDocument() {
-            return idTypeDocument;
-        }
-
-        public void setIdTypeDocument(String idTypeDocument) {
-            this.idTypeDocument = idTypeDocument;
-        }
-
-        public String getNit() {
-            return nit;
-        }
-
-        public void setNit(String nit) {
-            this.nit = nit;
-        }
-
         public String getRepresentativeLegalDocument() {
             return representativeLegalDocument;
         }
@@ -177,9 +162,6 @@ public class PersonCudDTO {
             this.representativeLegalDocument = representativeLegalDocument;
         }
     }
-
-
-
 
 
     public @NotNull PersonKind getKind() {
@@ -218,11 +200,11 @@ public class PersonCudDTO {
         return isEmployee;
     }
 
-    public void setEmployee(Boolean employee) {
-        isEmployee = employee;
+    public void setEmployee(Boolean isEmployee) {
+        this.isEmployee = isEmployee;
     }
 
-    public @NotNull Boolean getEnabled() {
+    public @NotNull Boolean isEnabled() {
         return enabled;
     }
 
@@ -236,6 +218,22 @@ public class PersonCudDTO {
 
     public void setEmail(@Email @NotBlank String email) {
         this.email = email;
+    }
+
+    public String getIdDocumentType() {
+        return idDocumentType;
+    }
+
+    public void setIdDocumentType(String idDocumentType) {
+        this.idDocumentType = idDocumentType;
+    }
+
+    public String getDocumentType() {
+        return documentType;
+    }
+
+    public void setDocumentType(String documentType) {
+        this.documentType = documentType;
     }
 
     public @Valid NaturalData getPersonNaturalData() {
@@ -252,5 +250,13 @@ public class PersonCudDTO {
 
     public void setPersonLegalData(@Valid LegalData personLegalData) {
         this.personLegalData = personLegalData;
+    }
+
+    public @NotBlank String getName() {
+        return name;
+    }
+
+    public void setName(@NotBlank String name) {
+        this.name = name;
     }
 }

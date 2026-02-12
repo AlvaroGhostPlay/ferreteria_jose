@@ -12,15 +12,14 @@ public class PersonLegal {
     private UUID personId;
     private String legalName;
     private String comercialName;
-    @Column(name = "document_type")
-    private String typeDocument;
-    private String nit;
-    @Column(name = "id_document_type_representative")
+
+    @Column(name = "id_document_type_representative", nullable = false, length = 1)
     private String idTypeDocument;
-    @Column(name = "document_representative")
+    @Column(name = "document_representative", nullable = false, length = 18)
     private String representativeLegalDocument;
 
     @OneToOne(fetch = FetchType.LAZY)
+    @MapsId
     @JoinColumn(name = "id_person")
     private Person person;
 
@@ -48,22 +47,6 @@ public class PersonLegal {
         this.comercialName = comercialName;
     }
 
-    public String getTypeDocument() {
-        return typeDocument;
-    }
-
-    public void setTypeDocument(String typeDocument) {
-        this.typeDocument = typeDocument;
-    }
-
-    public String getNit() {
-        return nit;
-    }
-
-    public void setNit(String nit) {
-        this.nit = nit;
-    }
-
     public String getIdTypeDocument() {
         return idTypeDocument;
     }
@@ -86,5 +69,9 @@ public class PersonLegal {
 
     public void setPerson(Person person) {
         this.person = person;
+    }
+
+    public void setPersonId(UUID personId) {
+        this.personId = personId;
     }
 }

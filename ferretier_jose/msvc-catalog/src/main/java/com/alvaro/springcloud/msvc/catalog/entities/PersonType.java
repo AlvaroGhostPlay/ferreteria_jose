@@ -10,8 +10,8 @@ import jakarta.validation.constraints.NotBlank;
 @Table(name = "persons_types")
 public class PersonType {
     @Id
-    @Column(name = "person_type_id")   
-    @NotBlank 
+    @Column(name = "person_type_id")
+    @NotBlank
     private String personTypeId;
 
     @NotBlank
@@ -21,7 +21,7 @@ public class PersonType {
     public String getPersonTypeId() {
         return personTypeId;
     }
-    
+
     public void setPersonTypeId(String personTypeId) {
         this.personTypeId = personTypeId;
     }
@@ -32,5 +32,5 @@ public class PersonType {
 
     public void setPersonType(String personType) {
         this.personType = personType;
-    } 
+    }
 }

@@ -10,7 +10,7 @@ import jakarta.validation.constraints.NotBlank;
 @Table(name = "documents_types")
 public class DocumentType {
     @Id
-    @Column(name = "id_document_type")
+    @Column(name = "document_type_id")
     @NotBlank
     private String documentTypeId;
 
@@ -33,5 +33,5 @@ public class DocumentType {
     public void setDocumentType(String documentType) {
         this.documentType = documentType;
     }
-    
+
 }

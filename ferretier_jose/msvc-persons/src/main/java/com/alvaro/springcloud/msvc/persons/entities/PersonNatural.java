@@ -26,12 +26,9 @@ public class PersonNatural {
     private String idGener;
     @Column(name = "id_social_status")
     private String idSocialStatus;
-    @Column(name = "id_docuemtn_type")
-    private String idDocumentType;
-    @Column(name = "document_person")
-    private String documentPerson;
 
     @OneToOne(fetch = FetchType.LAZY)
+    @MapsId
     @JoinColumn(name="id_person")
     private Person person;
 
@@ -105,22 +102,6 @@ public class PersonNatural {
 
     public void setIdSocialStatus(String idSocialStatus) {
         this.idSocialStatus = idSocialStatus;
-    }
-
-    public String getDocumentPerson() {
-        return documentPerson;
-    }
-
-    public void setDocumentPerson(String documentPerson) {
-        this.documentPerson = documentPerson;
-    }
-
-    public String getIdDocumentType() {
-        return idDocumentType;
-    }
-
-    public void setIdDocumentType(String idDocumentType) {
-        this.idDocumentType = idDocumentType;
     }
 
     public Person getPerson() {

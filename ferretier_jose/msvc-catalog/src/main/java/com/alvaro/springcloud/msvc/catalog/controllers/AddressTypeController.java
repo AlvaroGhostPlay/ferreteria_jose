@@ -43,27 +43,27 @@ public class AddressTypeController {
     public ResponseEntity<?> getAddresType(@PathVariable String id) {
         Optional<AddressType> response = addressTypeService.getAddresTypeById(id);
         return response.map(ResponseEntity::ok)
-        .orElseGet(() -> ResponseEntity.notFound().build());
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping
     public ResponseEntity<?> save(@RequestBody AddressType request){
         Optional<AddressType> response = addressTypeService.save(request);
         return response.map(ResponseEntity::ok)
-        .orElseGet(() -> ResponseEntity.status(201).build());
+                .orElseGet(() -> ResponseEntity.status(201).build());
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@RequestBody AddressType request, @PathVariable String id){
         Optional<AddressType> response = addressTypeService.update(request, id);
         return response.map(ResponseEntity::ok)
-        .orElseGet(() -> ResponseEntity.notFound().build()); 
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable String id){
         Optional<AddressType> response = addressTypeService.delete(id);
         return response.map(ResponseEntity::ok)
-        .orElseGet(() -> ResponseEntity.notFound().build()); 
-    }  
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
 }
