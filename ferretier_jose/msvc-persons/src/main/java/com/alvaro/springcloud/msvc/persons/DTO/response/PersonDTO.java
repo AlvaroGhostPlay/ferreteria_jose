@@ -1,6 +1,6 @@
 package com.alvaro.springcloud.msvc.persons.DTO.response;
 
-import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 public record PersonDTO(
@@ -10,6 +10,7 @@ public record PersonDTO(
         String email,
         PersonTypeDTO person,
         DocumentTypeDTO documentType,
-        String document
+        String documentPerson,
+        List<String> phones
 ) {
 }

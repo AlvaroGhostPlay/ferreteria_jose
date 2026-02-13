@@ -11,6 +11,7 @@ import com.alvaro.springcloud.msvc.persons.repositories.PersonNaturalRepository;
 import com.alvaro.springcloud.msvc.persons.repositories.PersonRepository;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
@@ -181,6 +182,13 @@ public class PersonServiceImpl implements PersonService {
             documentTypeDTO = (DocumentTypeDTO) documentType.get();
         }
 
+        List<String> phones = new ArrayList<>();
+        uri = "/phones";
+        List<?> phones1 = getPhone(uri, person.getPersonId(), new ParameterizedTypeReference<List<String>>() {});
+        if (phones1 != null) {
+            phones =  (List<String>) phones1;
+        }
+
         return new PersonDTO(
                 person.getPersonId(),
                 person.getEnabled(),
@@ -188,7 +196,8 @@ public class PersonServiceImpl implements PersonService {
                 person.getEmail(),
                 personTypeDTO,
                 documentTypeDTO,
-                person.getPersonDocument());
+                person.getPersonDocument(),
+                phones);
     }
 
     @NotNull
@@ -251,6 +260,19 @@ public class PersonServiceImpl implements PersonService {
                 .retrieve()
                 .bodyToMono(responseType) // Se usa el parámetro Class<T>
                 .blockOptional();
+    }
+
+    @NotNull
+    private <T> List<T> getPhone(String uri, UUID id, ParameterizedTypeReference<T> responseType) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("id", id);
+
+        return (List<T>) webClientBuilder.get()
+                .uri("http://msvc-info-person" + uri + "/{id}", params)
+                .accept(MediaType.APPLICATION_JSON)
+                .retrieve()
+                .bodyToMono(responseType)
+                .block();
     }
 
     private PersonDataResponseDto toPersonDataDto(Person person) {

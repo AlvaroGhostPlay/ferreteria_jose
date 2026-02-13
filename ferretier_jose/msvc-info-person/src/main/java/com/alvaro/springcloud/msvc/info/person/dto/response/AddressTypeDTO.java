@@ -2,6 +2,6 @@ package com.alvaro.springcloud.msvc.info.person.dto.response;
 
 public record AddressTypeDTO(
         String addressTypeId,
-        Integer addressType
+        String addressType
 ) {
 }

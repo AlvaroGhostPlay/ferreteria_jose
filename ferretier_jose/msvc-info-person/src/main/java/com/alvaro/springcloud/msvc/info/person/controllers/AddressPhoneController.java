@@ -22,43 +22,47 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-
 
 @RestController
 public class AddressPhoneController {
 
     @Autowired
     private AddressPhoneService addressPhoneService;
+
+    @GetMapping("/phones/{id}")
+    public ResponseEntity<?> getOnlyPhones(@PathVariable UUID id) {
+        List<String> respose = addressPhoneService.findPhonesByIdPerson(id);
+        return ResponseEntity.ok().body(respose);
+    }
     
     @GetMapping("/all/{id}")
-    public ResponseEntity<?> getAllInfo(@RequestParam UUID id) {
+    public ResponseEntity<?> getAllInfo(@PathVariable UUID id) {
         Optional<AddressPhoneResponse> respose = addressPhoneService.findByIdAll(id);
         return respose.map(ResponseEntity::ok)
         .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping("/address/all/by-person/{id}")
-    public ResponseEntity<?> getAllAddressesByPerson(@RequestParam UUID id) {
+    public ResponseEntity<?> getAllAddressesByPerson(@PathVariable UUID id) {
         List<AddressDTO> respose = addressPhoneService.findByIdAllAddress(id);
         return ResponseEntity.ok().body(respose);
     }
 
     @GetMapping("/phone/all/by-person/{id}")
-    public ResponseEntity<?> getAllPhonesByPerson(@RequestParam UUID id) {
+    public ResponseEntity<?> getAllPhonesByPerson(@PathVariable UUID id) {
         List<PhoneDTO> respose = addressPhoneService.findByIdAllPhones(id);
         return ResponseEntity.ok().body(respose);
     }
 
     @GetMapping("/address/{id}")
-    public ResponseEntity<?> getAddress(@RequestParam UUID id) {
+    public ResponseEntity<?> getAddress(@PathVariable UUID id) {
         Optional<AddressDTO> respose = addressPhoneService.getAddress(id);
         return respose.map(ResponseEntity::ok)
         .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping("/phone/{id}")
-    public ResponseEntity<?> getPhone(@RequestParam UUID id) {
+    public ResponseEntity<?> getPhone(@PathVariable UUID id) {
         Optional<PhoneDTO> respose = addressPhoneService.getPhone(id);
         return respose.map(ResponseEntity::ok)
         .orElseGet(() -> ResponseEntity.notFound().build());

@@ -1,7 +1,5 @@
 package com.alvaro.springcloud.msvc.persons.DTO.response;
 
-import com.alvaro.springcloud.msvc.persons.entities.PersonLegal;
-
 public class PersonDataResponseDto {
     private PersonDTO person;
     private PersonNaturalDTO personNatural;

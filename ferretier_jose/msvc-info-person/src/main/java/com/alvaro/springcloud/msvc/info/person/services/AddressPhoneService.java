@@ -13,6 +13,7 @@ import java.util.UUID;
 
 public interface AddressPhoneService {
     Optional<AddressPhoneResponse> findByIdAll(UUID id);
+    List<String> findPhonesByIdPerson(UUID id);
     List<AddressDTO> findByIdAllAddress(UUID id);
     List<PhoneDTO> findByIdAllPhones(UUID id);
 

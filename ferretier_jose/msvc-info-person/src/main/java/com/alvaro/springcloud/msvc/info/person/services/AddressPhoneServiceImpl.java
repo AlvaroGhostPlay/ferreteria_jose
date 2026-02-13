@@ -7,8 +7,6 @@ import com.alvaro.springcloud.msvc.info.person.entities.Phone;
 import com.alvaro.springcloud.msvc.info.person.repositories.AddressRepository;
 import com.alvaro.springcloud.msvc.info.person.repositories.PhoneRepository;
 import jakarta.validation.constraints.NotNull;
-import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -30,6 +28,17 @@ public class AddressPhoneServiceImpl implements AddressPhoneService {
 
     @Autowired
     private WebClient webClientBuilder;
+
+        @Override
+    @Transactional(readOnly = true)
+    public List<String> findPhonesByIdPerson(UUID id) {
+        List<Phone> phones = phoneRepository.findByIdPerson(id);
+        List<String> phonesOnly = new ArrayList<>();
+        for(Phone p: phones){
+            phonesOnly.add(p.getPhoneNumber());
+        }
+        return phonesOnly;
+    }
 
     @Transactional(readOnly = true)
     @Override
