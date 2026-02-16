@@ -1,9 +1,7 @@
 package com.alvaro.springcloud.msvc.catalog.services.job_role;
 
 import com.alvaro.springcloud.msvc.catalog.entities.JobRole;
-import com.alvaro.springcloud.msvc.catalog.entities.SocialStatus;
 import com.alvaro.springcloud.msvc.catalog.repositories.JobRoleRepository;
-import com.alvaro.springcloud.msvc.catalog.repositories.SocialStatusRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
