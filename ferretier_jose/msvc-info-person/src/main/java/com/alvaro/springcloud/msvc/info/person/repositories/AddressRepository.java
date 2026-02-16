@@ -12,5 +12,6 @@ public interface AddressRepository extends JpaRepository<Address, UUID> {
     Optional<Address> findFirstByIdPerson(UUID personId);
     Optional<Address> findByAddressId(UUID AddresId);
     Optional<Address> findByIdPersonAndIdAddressType(UUID personId, String idAddressType);
-    void deleteByIdPerson(UUID personId);
+    void deleteByIdPersonAndAddressIdNotIn(UUID idPerson, List<UUID> ids);
+    void deleteByIdPerson(UUID idPerson);
 }

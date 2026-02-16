@@ -10,7 +10,7 @@ public record PersonNaturalDTO(
         String lastName,
         String seccondLastName,
         String marriedLastName,
-        GenerDTO Gener,
+        GenerDTO gener,
         StatusSocialDTO statusSocial
 ) {
 }

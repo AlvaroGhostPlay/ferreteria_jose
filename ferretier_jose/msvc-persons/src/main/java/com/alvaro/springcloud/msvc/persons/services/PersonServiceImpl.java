@@ -1,6 +1,6 @@
 package com.alvaro.springcloud.msvc.persons.services;
 
-import com.alvaro.springcloud.msvc.persons.DTO.request.PersonCudDTO;
+import com.alvaro.springcloud.msvc.persons.DTO.request.PersonCrudDTO;
 import com.alvaro.springcloud.msvc.persons.DTO.request.PersonKind;
 import com.alvaro.springcloud.msvc.persons.DTO.response.*;
 import com.alvaro.springcloud.msvc.persons.entities.Person;
@@ -52,6 +52,16 @@ public class PersonServiceImpl implements PersonService {
 
     @Transactional(readOnly = true)
     @Override
+    public Optional<PersonName> findPersonNameById(UUID id) {
+        Optional<Person> person = personRepository.findById(id);
+        if(person.isPresent()){
+            return Optional.of(new PersonName(person.get().getName(), person.get().getPersonId()));
+        }
+        return Optional.empty();
+    }
+
+    @Transactional(readOnly = true)
+    @Override
     public Page<PersonDTO> findAllPersonsClients(Pageable pageable) {
         Page<Person> listPersons = personRepository.findByIsClientPage(pageable);
 
@@ -98,7 +108,7 @@ public class PersonServiceImpl implements PersonService {
 
     @Transactional
     @Override
-    public Optional<PersonDataResponseDto> savePerson(PersonCudDTO personReq) {
+    public Optional<PersonDataResponseDto> savePerson(PersonCrudDTO personReq) {
 
         if(personReq.getKind() == PersonKind.NATURAL){
             if (personReq.getPersonNaturalData() == null){
@@ -123,7 +133,7 @@ public class PersonServiceImpl implements PersonService {
 
     @Transactional
     @Override
-    public Optional<PersonDataResponseDto> updatePerson(PersonCudDTO personReq, UUID id) {
+    public Optional<PersonDataResponseDto> updatePerson(PersonCrudDTO personReq, UUID id) {
         if(personReq.getKind() == PersonKind.NATURAL){
             if (personReq.getPersonNaturalData() == null){
                 throw new IllegalArgumentException("natural es requerido cuando kind=NATURAL");
@@ -316,7 +326,7 @@ public class PersonServiceImpl implements PersonService {
     }
 
     @NotNull
-    private Optional<PersonDataResponseDto> savePerson(PersonCudDTO personReq, Person presonDb, UUID id) {
+    private Optional<PersonDataResponseDto> savePerson(PersonCrudDTO personReq, Person presonDb, UUID id) {
         Person p = presonDb;
         System.out.println(personReq.getClient());
         System.out.println(personReq.getEmployee());

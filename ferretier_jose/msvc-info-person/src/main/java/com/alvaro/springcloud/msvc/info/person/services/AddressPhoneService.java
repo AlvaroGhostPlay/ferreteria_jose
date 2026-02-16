@@ -18,7 +18,7 @@ public interface AddressPhoneService {
     List<PhoneDTO> findByIdAllPhones(UUID id);
 
     Optional<AddressPhoneResponse> save(AddressPhoneRequest request);
-    Optional<AddressPhoneResponse> update(AddressPhoneRequest request);
+    Optional<AddressPhoneResponse> update(UUID id, AddressPhoneRequest request);
     Optional<AddressPhoneResponse> deleteAll(UUID id);
     List<AddressDTO> deleteAllAddress(UUID id);
     List<PhoneDTO> deleteAllPhones(UUID id);

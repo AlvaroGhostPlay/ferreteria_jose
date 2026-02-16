@@ -1,7 +1,8 @@
 package com.alvaro.springcloud.msvc.persons.controllers;
 
-import com.alvaro.springcloud.msvc.persons.DTO.request.PersonCudDTO;
+import com.alvaro.springcloud.msvc.persons.DTO.request.PersonCrudDTO;
 import com.alvaro.springcloud.msvc.persons.DTO.response.PersonDataResponseDto;
+import com.alvaro.springcloud.msvc.persons.DTO.response.PersonName;
 import com.alvaro.springcloud.msvc.persons.services.PersonService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -20,8 +21,15 @@ public class PersonController {
     private PersonService personService;
 
     @GetMapping("/clients")
-    public ResponseEntity<?> getClients(){
+    public ResponseEntity<?> getPersonName(){
         return ResponseEntity.ok().body(personService.findAllPersonsClient());
+    }
+
+    @GetMapping("/person-name/{id}")
+    public ResponseEntity<?> getClients(@PathVariable UUID id){
+        Optional<PersonName> personOptional = personService.findPersonNameById(id);
+        return personOptional.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping("/person-clients/{page}")
@@ -73,14 +81,14 @@ public class PersonController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createPerson(@RequestBody PersonCudDTO personReq){
+    public ResponseEntity<?> createPerson(@RequestBody PersonCrudDTO personReq){
         Optional<PersonDataResponseDto> personOptional = personService.savePerson(personReq);
         return personOptional.map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.status(201).build());
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updatePerson(@RequestBody PersonCudDTO personReq, @PathVariable UUID id){
+    public ResponseEntity<?> updatePerson(@RequestBody PersonCrudDTO personReq, @PathVariable UUID id){
         Optional<PersonDataResponseDto> personOptional = personService.updatePerson(personReq, id);
         return personOptional.map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());

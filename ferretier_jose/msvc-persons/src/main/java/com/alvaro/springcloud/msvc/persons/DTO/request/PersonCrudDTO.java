@@ -3,7 +3,7 @@ package com.alvaro.springcloud.msvc.persons.DTO.request;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 
-public class PersonCudDTO {
+public class PersonCrudDTO {
 
     @NotNull
     private PersonKind kind;

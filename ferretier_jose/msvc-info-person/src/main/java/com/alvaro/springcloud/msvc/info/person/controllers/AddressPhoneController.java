@@ -1,6 +1,6 @@
 package com.alvaro.springcloud.msvc.info.person.controllers;
 
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.alvaro.springcloud.msvc.info.person.dto.request.AddressPhoneRequest;
 import com.alvaro.springcloud.msvc.info.person.dto.response.AddressDTO;
@@ -16,13 +16,8 @@ import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
+@CrossOrigin("http://localhost:4200")
 @RestController
 public class AddressPhoneController {
 
@@ -76,9 +71,9 @@ public class AddressPhoneController {
     }
 
     //revisar esto ya que no puede eliminar las direcciones que no se envien en el request
-    @PutMapping("/address-phone")
-    public ResponseEntity<?> updateAddressPhone(@RequestBody AddressPhoneRequest request) {
-        Optional<AddressPhoneResponse> respose = addressPhoneService.update(request);
+    @PutMapping("/address-phone/{id}")
+    public ResponseEntity<?> updateAddressPhone(@PathVariable UUID id, @RequestBody AddressPhoneRequest request) {
+        Optional<AddressPhoneResponse> respose = addressPhoneService.update(id, request);
         return respose.map(ResponseEntity::ok)
         .orElseGet(() -> ResponseEntity.notFound().build());
     }

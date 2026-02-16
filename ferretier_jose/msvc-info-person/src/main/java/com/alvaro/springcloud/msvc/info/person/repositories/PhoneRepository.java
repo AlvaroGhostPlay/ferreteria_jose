@@ -15,4 +15,5 @@ public interface PhoneRepository extends JpaRepository<Phone, UUID> {
     Optional<Phone> findByPhoneId(UUID phoneId);
     Optional<Phone> findByPhoneNumber(String phone);
     Optional<Phone> findByIdPersonAndPhoneNumber(UUID idPerson, String idPhoneType);
+    void deleteByIdPersonAndPhoneIdNotIn(UUID idPerson, List<UUID> ids);
 }
