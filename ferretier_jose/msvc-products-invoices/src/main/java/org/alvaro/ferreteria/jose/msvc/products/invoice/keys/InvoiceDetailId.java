@@ -1,18 +1,15 @@
-package org.alvaro.ferreteria.jose.msvc.products.invoice.entities;
+package org.alvaro.ferreteria.jose.msvc.products.invoice.keys;
 
 import java.io.Serializable;
 import java.util.UUID;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 
 @Embeddable
 public class InvoiceDetailId implements Serializable {
 
     @Column(name = "id_invoice", nullable = false)
-    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID invoiceId;
 
     @Column(name = "correlative", nullable = false)

@@ -9,8 +9,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import com.alvaro.springcloud.msvc.catalog.entities.MethodPaymment;
 
 public interface MethodPaymmetRepository extends JpaRepository<MethodPaymment, String>{
-    Optional<MethodPaymment> findByMethodPaymmetId(String id);
-    Optional<MethodPaymment> deleteByMethodPaymmetId(String id);
+    Optional<MethodPaymment> findByMethodPaymmentId(String id);
+    Optional<MethodPaymment> deleteByMethodPaymmentId(String id);
     Page<MethodPaymment> findAll(Pageable pageable);
     
 }

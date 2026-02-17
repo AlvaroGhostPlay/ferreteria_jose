@@ -1,7 +1,6 @@
 package org.alvaro.ferreteria.jose.msvc.products.invoice.entities;
 
 import java.math.BigDecimal;
-import java.util.UUID;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
@@ -11,6 +10,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MapsId;
 import jakarta.persistence.Table;
+import org.alvaro.ferreteria.jose.msvc.products.invoice.keys.InvoiceDetailId;
 
 @Entity
 @Table(name = "invoices_details")

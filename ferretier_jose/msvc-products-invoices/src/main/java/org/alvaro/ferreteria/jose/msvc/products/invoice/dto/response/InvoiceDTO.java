@@ -1,5 +1,6 @@
 package org.alvaro.ferreteria.jose.msvc.products.invoice.dto.response;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 public record InvoiceDTO(
@@ -9,7 +10,10 @@ public record InvoiceDTO(
     Double subTotal,
     Double iva,
     Double total,
-    Boolean state
+    Boolean state,
+    LocalDateTime date,
+    String idMethodPaymment,
+    String invliceNumber
 ) {
     
 }

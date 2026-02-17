@@ -1,5 +1,6 @@
 package org.alvaro.ferreteria.jose.msvc.products.invoice.entities;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.UUID;
 
@@ -32,15 +33,15 @@ public class Product {
     @Column(name = "id_category")
     private String idCategory;
 
-    @NotBlank
+    @NotNull
     @Column(name = "price")
     private Double price;
 
-    @NotBlank
+    @NotNull
     @Column(name = "iva")
     private Double iva;
 
-    @NotBlank
+    @NotNull
     @Column(name = "stock")
     private Integer stock;
 
@@ -50,7 +51,7 @@ public class Product {
 
     @NotNull
     @Column(name = "expiration_date")
-    private Date expirationDate;
+    private LocalDate expirationDate;
 
     @Column(name = "image")
     private String image;
@@ -120,11 +121,11 @@ public class Product {
         this.idBrand = idBrand;
     }
 
-    public Date getExpirationDate() {
+    public LocalDate getExpirationDate() {
         return expirationDate;
     }
 
-    public void setExpirationDate(Date expirationDate) {
+    public void setExpirationDate(LocalDate expirationDate) {
         this.expirationDate = expirationDate;
     }
 

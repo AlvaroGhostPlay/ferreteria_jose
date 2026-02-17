@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.alvaro.ferreteria.jose.msvc.products.invoice.entities.InvoiceDetail;
-import org.alvaro.ferreteria.jose.msvc.products.invoice.entities.InvoiceDetailId;
+import org.alvaro.ferreteria.jose.msvc.products.invoice.keys.InvoiceDetailId;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 

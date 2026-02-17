@@ -11,10 +11,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface InvoiceService {
-    List<InvoiceDTO> gethistorialByEmployee(UUID idEmployeee);
-    Page<InvoiceDTO> gethistorialByEmployee(Pageable idEmployeee);
+    List<InvoiceDTO> getHistorialByEmployee(UUID idEmployeee);
+    Page<InvoiceDTO> getHistorialByEmployee(Pageable pageablem, UUID idEmployee);
+    Page<InvoiceDTO> getHistorialByAdmin(Pageable pageable);
     Optional<InvoiceResponse> getInvoice(UUID idInvoice);
     Optional<InvoiceResponse> saveInvoice(InvoiceRequest requestInvoice);
-    Optional<InvoiceResponse> updateInvoice(UUID idInvoice, InvoiceRequest requestInvoice);
     Optional<InvoiceResponse> devolutionIvoice(UUID idInvoice, InvoiceRequest requestInvoiceDev);
 }

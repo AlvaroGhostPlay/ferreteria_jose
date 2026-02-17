@@ -1,6 +1,8 @@
 package org.alvaro.ferreteria.jose.msvc.products.invoice.entities;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -13,9 +15,9 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-@Embeddable
 @Entity
 @Table(name = "invoices")
 public class Invoice {
@@ -45,8 +47,19 @@ public class Invoice {
     @Column(name = "total")
     private Double total;
 
-    @Column(name = "sate")
+    @Column(name = "state")
     private Boolean state;
+
+    @Column(name = "date")
+    private LocalDateTime date;
+
+    @NotBlank
+    @Column(name = "id_method_paymment")
+    private String idMethodPaymment;
+
+    @NotBlank
+    @Column(name = "invoice_number", unique = true)
+    private String invoiceNumber;
 
     @OneToMany(
         mappedBy = "invoice",
@@ -120,6 +133,14 @@ public class Invoice {
         this.details = details;
     }
 
+    public LocalDateTime getDate() {
+        return date;
+    }
+
+    public void setDate(LocalDateTime date) {
+        this.date = date;
+    }
+
     public void addDetail(InvoiceDetail detail) {
         details.add(detail);
         detail.setInvoice(this);
@@ -128,5 +149,21 @@ public class Invoice {
     public void removeDetail(InvoiceDetail detail) {
         details.remove(detail);
         detail.setInvoice(null);
+    }
+
+    public String getIdMethodPaymment() {
+        return idMethodPaymment;
+    }
+
+    public void setIdMethodPaymment(String idMethodPaymment) {
+        this.idMethodPaymment = idMethodPaymment;
+    }
+
+    public @NotBlank String getInvoiceNumber() {
+        return invoiceNumber;
+    }
+
+    public void setInvoiceNumber(@NotBlank String invoiceNumber) {
+        this.invoiceNumber = invoiceNumber;
     }
 }

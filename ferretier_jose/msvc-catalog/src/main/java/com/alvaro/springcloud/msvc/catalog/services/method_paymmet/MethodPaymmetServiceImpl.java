@@ -22,7 +22,7 @@ public class MethodPaymmetServiceImpl implements MethodPaymmetService {
     @Transactional(readOnly = true)
     @Override
     public Optional<MethodPaymment> getMethodPaymmetById(String id) {
-        return methodPaymmetRepository.findByMethodPaymmetId(id);
+        return methodPaymmetRepository.findByMethodPaymmentId(id);
     }
 
     @Transactional(readOnly = true)
@@ -50,7 +50,7 @@ public class MethodPaymmetServiceImpl implements MethodPaymmetService {
     @Transactional
     @Override
     public Optional<MethodPaymment> update(MethodPaymment request, String id) {
-        Optional<MethodPaymment> addOptional = methodPaymmetRepository.findByMethodPaymmetId(id);
+        Optional<MethodPaymment> addOptional = methodPaymmetRepository.findByMethodPaymmentId(id);
         if (addOptional.isPresent()) {
             addOptional.get().setMethodPaymment(request.getMethodPaymment());
             addOptional.get().setMethodPaymmentId(request.getMethodPaymmentId());
@@ -62,9 +62,9 @@ public class MethodPaymmetServiceImpl implements MethodPaymmetService {
     @Transactional
     @Override
     public Optional<MethodPaymment> delete(String id) {
-        Optional<MethodPaymment> addOptional = methodPaymmetRepository.findByMethodPaymmetId(id);
+        Optional<MethodPaymment> addOptional = methodPaymmetRepository.findByMethodPaymmentId(id);
         if (addOptional.isPresent()) {
-            return methodPaymmetRepository.deleteByMethodPaymmetId(id);
+            return methodPaymmetRepository.deleteByMethodPaymmentId(id);
         }
         return Optional.empty();
     }
