@@ -1,5 +1,6 @@
 package org.alvaro.ferreteria.jose.msvc.products.invoice.entities;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -34,8 +35,9 @@ public class Devolution {
     @Column(name = "devolution_number", nullable = false, unique = true, length = 20)
     private String devolutionNumber;
 
-    @Temporal(TemporalType.DATE)
-    @Column(name = "date")
+    @NotNull
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    @Column(name = "date", nullable = false)
     private Date date;
 
     @OneToMany(mappedBy = "devolution", cascade = CascadeType.ALL, orphanRemoval = true)

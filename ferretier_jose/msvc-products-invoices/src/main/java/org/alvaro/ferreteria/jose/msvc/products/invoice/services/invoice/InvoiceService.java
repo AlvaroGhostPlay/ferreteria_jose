@@ -16,5 +16,4 @@ public interface InvoiceService {
     Page<InvoiceDTO> getHistorialByAdmin(Pageable pageable);
     Optional<InvoiceResponse> getInvoice(UUID idInvoice);
     Optional<InvoiceResponse> saveInvoice(InvoiceRequest requestInvoice);
-    Optional<InvoiceResponse> devolutionIvoice(UUID idInvoice, InvoiceRequest requestInvoiceDev);
 }

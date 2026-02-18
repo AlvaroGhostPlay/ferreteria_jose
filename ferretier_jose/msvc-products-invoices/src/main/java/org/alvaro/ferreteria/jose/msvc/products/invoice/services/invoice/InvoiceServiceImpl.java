@@ -118,13 +118,6 @@ public class InvoiceServiceImpl implements InvoiceService{
         return Optional.of(new InvoiceResponse(createInvoiceDTO(saved), details));
     }
 
-    @Override
-    @Transactional
-    public Optional<InvoiceResponse> devolutionIvoice(UUID idInvoice, InvoiceRequest requestInvoiceDev) {
-        // TODO Auto-generated method stub
-        return Optional.empty();
-    }
-
     private InvoiceDetailDTO createInvoiceDetailDTO(InvoiceDetail detail){
         ProductDTO productDTO = createProductDTO(detail.getProduct());
         return new InvoiceDetailDTO(
