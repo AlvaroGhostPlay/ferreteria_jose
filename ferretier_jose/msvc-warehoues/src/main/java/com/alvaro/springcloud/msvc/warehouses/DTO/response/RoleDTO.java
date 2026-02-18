@@ -4,6 +4,7 @@ import java.util.UUID;
 
 public record RoleDTO(
         UUID roleId,
-        String roleName
+        String roleName,
+        UUID id
 ) {
 }

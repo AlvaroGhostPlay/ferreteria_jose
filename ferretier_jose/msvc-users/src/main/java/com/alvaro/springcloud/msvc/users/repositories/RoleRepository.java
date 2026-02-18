@@ -14,4 +14,5 @@ public interface RoleRepository extends JpaRepository<Role, UUID> {
         where r.roleName = ?1
     """)
     Optional<Role> findByName(String name);
+    Optional<Role> findByRoleId(UUID name);
 }

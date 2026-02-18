@@ -15,7 +15,7 @@ public class Role {
     private UUID roleId;
 
     @NotBlank
-    @Column(name = "role_name")
+    @Column(name = "role")
     private String roleName;
 
     public UUID getId() {

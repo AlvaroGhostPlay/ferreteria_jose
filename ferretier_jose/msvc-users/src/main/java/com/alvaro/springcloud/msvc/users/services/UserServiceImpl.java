@@ -107,7 +107,6 @@ public class UserServiceImpl implements UserService {
                     }
                 }
             }
-            userResponse.get().setRoles(role);
             userOptional.get().setRoles(role);
             userResponse.get().setEnabled(user.isEnabled());
             userOptional.get().setEnabled(user.isEnabled());
@@ -126,8 +125,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public Optional<User> delete(UUID id) {
         Optional<User> userOptional = userRepository.findById(id);
-        userOptional.ifPresent(u -> userRepository.delete(u));
-        return userOptional;
+        if (userOptional.isPresent()) {
+            return this.userRepository.deleteByUserId(id);
+        }
+        return Optional.empty();
     }
 
 

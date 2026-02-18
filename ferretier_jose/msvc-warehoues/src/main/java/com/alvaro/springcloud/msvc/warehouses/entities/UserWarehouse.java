@@ -9,9 +9,16 @@ public class UserWarehouse {
     @EmbeddedId
     private UserJobRoleWarehouseId id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_warehouse", referencedColumnName = "id", insertable = false, updatable = false)
+
+    @ManyToOne
+    @MapsId("idWarehouse")
+    @JoinColumn(name = "id_warehouse")
     private Warehouse warehouse;
+
+    @ManyToOne
+    @MapsId("idJobRole")
+    @JoinColumn(name = "id_job_role")
+    private JobRole jobRole;
 
     public UserJobRoleWarehouseId getId() {
         return id;
@@ -27,5 +34,13 @@ public class UserWarehouse {
 
     public void setWarehouse(Warehouse warehouse) {
         this.warehouse = warehouse;
+    }
+
+    public JobRole getJobRole() {
+        return jobRole;
+    }
+
+    public void setJobRole(JobRole jobRole) {
+        this.jobRole = jobRole;
     }
 }

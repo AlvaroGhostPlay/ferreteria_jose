@@ -3,6 +3,7 @@ package com.alvaro.springcloud.msvc.warehouses.entities;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
@@ -19,6 +20,12 @@ public class Warehouse {
     private String warehouseName;
 
     private Boolean enabled;
+
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+
+    @Column(name = "update_at")
+    private LocalDateTime updateAt;
 
     public UUID getWarehouseId() {
         return warehouseId;
@@ -43,4 +50,22 @@ public class Warehouse {
     public void setEnabled(Boolean enabled) {
         this.enabled = enabled;
     }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdateAt() {
+        return updateAt;
+    }
+
+    public void setUpdateAt(LocalDateTime updateAt) {
+        this.updateAt = updateAt;
+    }
+
+    
 }

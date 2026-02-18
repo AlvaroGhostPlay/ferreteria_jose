@@ -15,5 +15,4 @@ public interface WarehouseService {
     Optional<Warehouse> save(Warehouse warehouse);
     Optional<Warehouse> update(Warehouse warehouse, UUID id);
     Optional<Warehouse> deleteById(UUID id);
-
 }

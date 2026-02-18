@@ -1,5 +1,6 @@
 package com.alvaro.springcloud.msvc.warehouses.entities;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import java.io.Serializable;
 import java.util.UUID;
@@ -8,8 +9,11 @@ import java.util.Objects;
 @Embeddable
 public class UserJobRoleWarehouseId implements Serializable {
 
+    @Column(name = "id_user")
     private UUID idUser;
+    @Column(name = "id_job_role")
     private UUID idJobRole;
+    @Column(name = "id_warehouse")
     private UUID idWarehouse;
 
     public UserJobRoleWarehouseId() {}

@@ -1,4 +1,4 @@
-package com.alvaro.springcloud.msvc.catalog.entities;
+package com.alvaro.springcloud.msvc.warehouses.entities;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;

@@ -55,8 +55,9 @@ public class RoleServiceImpl implements RoleService {
         return roleRepository.findAll(page);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public Optional<Role> findById(UUID id) {
-        return roleRepository.findById(id);
+        return roleRepository.findByRoleId(id);
     }
 }
