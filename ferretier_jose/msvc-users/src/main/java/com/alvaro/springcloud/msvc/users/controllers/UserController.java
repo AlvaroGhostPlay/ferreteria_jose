@@ -4,6 +4,7 @@ import com.alvaro.springcloud.msvc.users.dto.request.UserDTO;
 import com.alvaro.springcloud.msvc.users.dto.response.UserResponseDTO;
 import com.alvaro.springcloud.msvc.users.entities.User;
 import com.alvaro.springcloud.msvc.users.services.UserService;
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,8 +65,8 @@ public class UserController {
     }*/
 
     @PostMapping
-    public ResponseEntity<?> createUser(@RequestBody User user) {
-        Optional<User> userOPtional = userService.save(user);
+    public ResponseEntity<?> createUser(@Valid @RequestBody User user) {
+        Optional<UserResponseDTO> userOPtional = userService.save(user);
         logger.info("User Controller::createUser: creando {}", userOPtional.get());
         return userOPtional.map(u -> ResponseEntity.status(HttpStatusCode.valueOf(201)).body(u))
                 .orElseGet(() -> ResponseEntity.status(HttpStatusCode.valueOf(203)).build());
@@ -89,7 +90,7 @@ public class UserController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteUser(@PathVariable UUID id) {
-        Optional<User> userOPtional = userService.delete(id);
+        Optional<UserResponseDTO> userOPtional = userService.delete(id);
         logger.info("User Controller::deleteUser: Eliminando {}", userOPtional.get());
         return userOPtional.map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());

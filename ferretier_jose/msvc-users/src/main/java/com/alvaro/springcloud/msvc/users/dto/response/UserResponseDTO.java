@@ -21,6 +21,24 @@ public class UserResponseDTO {
         roles = new HashSet<>();
     }
 
+    public UserResponseDTO(
+            UUID userId,
+            String username,
+            Boolean enabled,
+            Boolean mostChangePass,
+            LocalDateTime createdAt,
+            LocalDateTime passUpdateAt,
+            Set<Role> roles
+    ) {
+        this.userId = userId;
+        this.username = username;
+        this.enabled = enabled;
+        this.mostChangePass = mostChangePass;
+        this.createdAt = createdAt;
+        this.passUpdateAt = passUpdateAt;
+        this.roles = roles;
+    }
+
     public UUID getUserId() {
         return userId;
     }

@@ -25,16 +25,17 @@ public class User {
     @NotBlank
     private String password;
 
-    private Boolean enabled;
-
-    @Column(name = "most_change_pass")
-    private Boolean mostChangePass;
-
-    @Column(name = "created_at")
+    @Column(name = "created_at", insertable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "pass_update_at")
+    @Column(name = "pass_update_at", insertable = false, updatable = false)
     private LocalDateTime passUpdateAt;
+
+    @Column(name = "most_change_pass", insertable = false)
+    private Boolean mostChangePass;
+
+    @Column(name = "enabled", insertable = false)
+    private Boolean enabled;
 
     @NotNull
     @JsonIgnoreProperties({"handler", "hibernateLazyInitializer"})

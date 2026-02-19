@@ -13,10 +13,10 @@ import java.util.UUID;
 public interface UserService {
     //Optional<User> findByEmail(String email);
     Optional<User> findByUsername(String username);
-    Optional<User> save(User user);
+    Optional<UserResponseDTO> save(User user);
     List<User> findAll();
     Optional<UserResponseDTO> update(User user, UUID id);
-    Optional<User> delete(UUID id);
+    Optional<UserResponseDTO> delete(UUID id);
     Page<User> findAll(Pageable page);
     Optional<User> findById(UUID id);
     Optional<User> changePass(UserDTO user, UUID id);

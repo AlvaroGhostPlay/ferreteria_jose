@@ -3,6 +3,7 @@ package com.alvaro.springcloud.msvc.warehouses.controllers;
 import java.util.Optional;
 import java.util.UUID;
 
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -50,7 +51,7 @@ public class WarehouseController {
     }
 
     @PostMapping
-    public ResponseEntity<?> saveWarehouse(@RequestBody Warehouse request) {
+    public ResponseEntity<?> saveWarehouse(@Valid @RequestBody Warehouse request) {
         Optional<Warehouse> response = this.warehouseService.save(request);
         return response.map(ResponseEntity::ok)
         .orElseGet(
@@ -59,7 +60,7 @@ public class WarehouseController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateWarehouse(@RequestBody Warehouse request, @PathVariable UUID id) {
+    public ResponseEntity<?> updateWarehouse(@Valid @RequestBody Warehouse request, @PathVariable UUID id) {
         Optional<Warehouse> response = this.warehouseService.update(request, id);
         return response.map(ResponseEntity::ok)
         .orElseGet(

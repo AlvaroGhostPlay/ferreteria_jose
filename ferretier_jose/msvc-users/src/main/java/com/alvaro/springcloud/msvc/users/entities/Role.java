@@ -18,10 +18,6 @@ public class Role {
     @Column(name = "role")
     private String roleName;
 
-    public UUID getId() {
-        return roleId;
-    }
-
     public UUID getRoleId() {
         return roleId;
     }

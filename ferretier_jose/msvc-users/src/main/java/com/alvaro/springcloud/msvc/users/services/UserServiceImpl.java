@@ -6,6 +6,8 @@ import com.alvaro.springcloud.msvc.users.entities.Role;
 import com.alvaro.springcloud.msvc.users.entities.User;
 import com.alvaro.springcloud.msvc.users.repositories.RoleRepository;
 import com.alvaro.springcloud.msvc.users.repositories.UserRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -27,6 +29,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private RoleRepository roleRepository;
+
+    @PersistenceContext
+    private EntityManager em;
 
 
     /*@Transactional(readOnly = true)
@@ -78,7 +83,7 @@ public class UserServiceImpl implements UserService {
     /*Este metodo es para crear el usuario*/
     @Transactional
     @Override
-    public Optional<User> save(User user) {
+    public Optional<UserResponseDTO> save(User user) {
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         Set<Role> role = new HashSet<>();
@@ -90,7 +95,14 @@ public class UserServiceImpl implements UserService {
             }
         }
         user.setRoles(role);
-        return Optional.of(userRepository.save(user));
+        User saved = userRepository.save(user);
+
+        // fuerza a Hibernate a ir a BD y traer defaults (created_at, pass_update_at, etc.)
+        em.flush();
+        em.refresh(saved);
+        UserResponseDTO userResponseDTO = new UserResponseDTO(saved.getUserId(),saved.getUsername(),saved.getEnabled(),saved.getMostChangePass(), saved.getCreatedAt(),saved.getPassUpdateAt(),saved.getRoles());
+
+        return Optional.of(userResponseDTO);
     }
 
     @Transactional
@@ -123,12 +135,29 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     @Override
-    public Optional<User> delete(UUID id) {
-        Optional<User> userOptional = userRepository.findById(id);
-        if (userOptional.isPresent()) {
-            return this.userRepository.deleteByUserId(id);
-        }
-        return Optional.empty();
+    public Optional<UserResponseDTO> delete(UUID id) {
+
+        return userRepository.findById(id).map(u -> {
+
+            Set<String> roleNames = u.getRoles() == null ? Set.of()
+                    : u.getRoles().stream()
+                    .map(Role::getRoleName)
+                    .collect(java.util.stream.Collectors.toSet());
+            // construyes el DTO ANTES de borrar (u aún está managed)
+            UserResponseDTO dto = new UserResponseDTO(
+                    u.getUserId(),
+                    u.getUsername(),
+                    u.getEnabled(),
+                    u.getMostChangePass(),
+                    u.getCreatedAt(),
+                    u.getPassUpdateAt(),
+                    null
+            );
+
+            userRepository.deleteByUserId(id);   // o deleteById(id)
+
+            return dto;
+        });
     }
 
 
