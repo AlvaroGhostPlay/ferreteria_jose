@@ -14,7 +14,7 @@ resilience4j:
   timelimiter:
     configs:
         default:
-            timeoutDuration: 3s #tiempo maximo de espera time out y es primero antes que llamada lenta
+            timeoutDuration: 20s #tiempo maximo de espera time out y es primero antes que llamada lenta
     instances:
         products:
             baseConfig: default
@@ -24,6 +24,24 @@ spring:
     name: msvc-gateway-server
   cloud:
     gateway:
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins:
+              - "http://localhost:4200"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders:
+              - Authorization
+              - Content-Type
+              - Accept
+            exposedHeaders:
+              - Authorization
+            allowCredentials: true
       routes:
           - id: msvc-oauth
             uri: lb://msvc-oauth
@@ -46,11 +64,6 @@ spring:
             predicates:
               - Path=/api/persons/**
             filters:
-              - name: CircuitBreaker
-                args:
-                  #name: products
-                  #statusCodes: 500
-                  #fallbackUri: forward:/api/items/5
               - StripPrefix=2
 
           - id: msvc-catalog
@@ -60,40 +73,35 @@ spring:
             filters:
               - StripPrefix=2
 
+          - id: msvc-info-person
+            uri: lb://msvc-info-person
+            predicates:
+              - Path=/api/info-person/**
+            filters:
+              - StripPrefix=2
+              - TokenRelay
+
 
   security:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://127.0.0.1:9100
-          #issuer-uri: http://172.17.0.1:9100
-          #issuer-uri: http://msvc-oauth:9100 docker
-          #issuer-uri: http://192.168.56.1:9100
-          #jwk-set-uri: http://host.docker.internal:9100/oauth2/jwks
+          issuer-uri: http://localhost:9100
       client:
         registration:
-          client-app:
+          ferr-jose-auth-server:
             provider: spring
-            client-id: gateway-app
-            client-secret: 123456
+            client-id: ferr-jose-auth-server
+            client-secret: ldkfjemsDLf@l,dlsdlñldlsd
             authorization-grant-type: authorization_code
-            #redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
-            redirect-uri: http://localhost:8090/authorized
-            #redirect-uri: http://127.0.0.1:8090/authorized
-            #redirect-uri: http://localhost:8090/login/oauth2/code/client-app
+            redirect-uri: "http://127.0.0.1:8090/authorized"
             scope:
               - openid
               - profile
-            client-name: client-app
+            client-name: ferr-jose-auth-server
         provider:
           spring:
-            #issuer-uri: http://172.17.0.1:9100
-            #issuer-uri: http://msvc-oauth:9100 docker
-            #issuer-uri: http://127.0.0.1:9100
-            #issuer-uri: http://192.168.56.1:9100
-            authorization-uri: http://localhost:9100/oauth2/authorize
-            token-uri: http://host.docker.internal:9100/oauth2/token
-            jwk-set-uri: http://host.docker.internal:9100/oauth2/jwks
+            issuer-uri: http://localhost:9100
 
 server:
   port: 8090
@@ -101,8 +109,7 @@ server:
 eureka:
   client:
     service-url:
-      #defaultZone: http://localhost:8761/eureka
-      defaultZone: http://eureka-server:8761/eureka
+      defaultZone: http://localhost:8761/eureka
 
 management:
   endpoints:

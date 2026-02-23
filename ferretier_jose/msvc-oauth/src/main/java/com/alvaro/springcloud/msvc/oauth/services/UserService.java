@@ -2,11 +2,9 @@ package com.alvaro.springcloud.msvc.oauth.services;
 
 import com.alvaro.springcloud.msvc.oauth.models.User;
 import io.micrometer.tracing.Tracer;
-import jakarta.ws.rs.NotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

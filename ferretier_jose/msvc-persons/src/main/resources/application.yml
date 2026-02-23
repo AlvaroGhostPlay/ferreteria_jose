@@ -3,9 +3,9 @@ spring:
     name: msvc-persons
 
   datasource:
-    url: jdbc:postgresql://localhost:5433/db_ferreteria
+    url: jdbc:postgresql://localhost:5432/db_ferreteria
     username: postgres
-    password: 12345
+    password: sasa
     driver-class-name: org.postgresql.Driver
 
   jpa:
