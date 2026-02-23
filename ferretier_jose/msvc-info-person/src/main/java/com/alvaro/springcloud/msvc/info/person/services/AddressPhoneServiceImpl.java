@@ -27,14 +27,14 @@ public class AddressPhoneServiceImpl implements AddressPhoneService {
     private PhoneRepository phoneRepository;
 
     @Autowired
-    private WebClient webClientBuilder;
+    private WebClient.Builder webClientBuilder;
 
-        @Override
+    @Override
     @Transactional(readOnly = true)
     public List<String> findPhonesByIdPerson(UUID id) {
         List<Phone> phones = phoneRepository.findByIdPerson(id);
         List<String> phonesOnly = new ArrayList<>();
-        for(Phone p: phones){
+        for (Phone p : phones) {
             phonesOnly.add(p.getPhoneNumber());
         }
         return phonesOnly;
@@ -131,15 +131,130 @@ public class AddressPhoneServiceImpl implements AddressPhoneService {
         return Optional.of(response);
     }
 
+    /*
+     * @Transactional
+     * 
+     * @Override
+     * public Optional<AddressPhoneResponse> update(UUID idPerson,
+     * AddressPhoneRequest request) {
+     * 
+     * // ===== ADDRESSES =====
+     * List<Address> dbAddresses = addressRepository.findByIdPerson(idPerson);
+     * Map<UUID, Address> dbAddrMap = new HashMap<>();
+     * for (Address a : dbAddresses) {
+     * dbAddrMap.put(a.getAddressId(), a);
+     * }
+     * 
+     * Set<UUID> keepAddrIds = new HashSet<>();
+     * List<AddressDTO> addressesDto = new ArrayList<>();
+     * 
+     * if (request.getAddresses() != null) {
+     * for (Address ar : request.getAddresses()) {
+     * 
+     * // Asegurá el idPerson (por si el front no lo manda bien)
+     * ar.setIdPerson(idPerson);
+     * 
+     * Address entity;
+     * 
+     * UUID reqId = ar.getAddressId(); // puede venir null
+     * if (reqId != null && dbAddrMap.containsKey(reqId)) {
+     * // existe => update
+     * entity = dbAddrMap.get(reqId);
+     * entity.setUpdateAt(LocalDate.now());
+     * } else {
+     * // no existe o viene null => create
+     * entity = new Address();
+     * entity.setCreateAt(LocalDate.now());
+     * entity.setUpdateAt(LocalDate.now());
+     * }
+     * 
+     * // Copiar campos
+     * entity.setIdPerson(idPerson);
+     * entity.setIdAddressType(ar.getIdAddressType());
+     * entity.setCity(ar.getCity());
+     * entity.setCountry(ar.getCountry());
+     * entity.setPostalCode(ar.getPostalCode());
+     * entity.setState(ar.getState());
+     * entity.setLine1(ar.getLine1());
+     * entity.setLine2(ar.getLine2());
+     * entity.setPrimary(ar.getPrimary());
+     * entity.setReference(ar.getReference());
+     * entity.setEnabled(ar.getEnabled());
+     * 
+     * Address saved = addressRepository.save(entity);
+     * 
+     * keepAddrIds.add(saved.getAddressId());
+     * addressesDto.add(mapperAddresDTO(saved));
+     * }
+     * }
+     * 
+     * // borrar lo que ya no viene
+     * for (Address db : dbAddresses) {
+     * if (!keepAddrIds.contains(db.getAddressId())) {
+     * addressRepository.delete(db);
+     * }
+     * }
+     * 
+     * 
+     * // ===== PHONES =====
+     * List<Phone> dbPhones = phoneRepository.findByIdPerson(idPerson);
+     * Map<UUID, Phone> dbPhoneMap = new HashMap<>();
+     * for (Phone p : dbPhones) {
+     * dbPhoneMap.put(p.getPhoneId(), p);
+     * }
+     * 
+     * Set<UUID> keepPhoneIds = new HashSet<>();
+     * List<PhoneDTO> phonesDto = new ArrayList<>();
+     * 
+     * if (request.getPhones() != null) {
+     * for (Phone pn : request.getPhones()) {
+     * 
+     * pn.setIdPerson(idPerson);
+     * 
+     * Phone entity;
+     * UUID reqId = pn.getPhoneId();
+     * 
+     * if (reqId != null && dbPhoneMap.containsKey(reqId)) {
+     * entity = dbPhoneMap.get(reqId);
+     * entity.setUpdateAt(LocalDate.now());
+     * } else {
+     * entity = new Phone();
+     * entity.setCreateAt(LocalDate.now());
+     * entity.setUpdateAt(LocalDate.now());
+     * }
+     * 
+     * entity.setIdPerson(idPerson);
+     * entity.setIdPhoneType(pn.getIdPhoneType());
+     * entity.setPhoneNumber(pn.getPhoneNumber());
+     * entity.setEnabled(pn.getEnabled());
+     * 
+     * Phone saved = phoneRepository.save(entity);
+     * 
+     * keepPhoneIds.add(saved.getPhoneId());
+     * phonesDto.add(mapperPhoneDTO(saved));
+     * }
+     * }
+     * 
+     * for (Phone db : dbPhones) {
+     * if (!keepPhoneIds.contains(db.getPhoneId())) {
+     * phoneRepository.delete(db);
+     * }
+     * }
+     * 
+     * return Optional.of(new AddressPhoneResponse(addressesDto, phonesDto));
+     * }
+     */
     @Transactional
     @Override
     public Optional<AddressPhoneResponse> update(UUID idPerson, AddressPhoneRequest request) {
 
-        // ===== ADDRESSES =====
+        // ===================== ADDRESSES =====================
         List<Address> dbAddresses = addressRepository.findByIdPerson(idPerson);
-        Map<UUID, Address> dbAddrMap = new HashMap<>();
+
+        // Mapa por clave lógica: idAddressType
+        Map<String, Address> dbAddrByType = new HashMap<>();
         for (Address a : dbAddresses) {
-            dbAddrMap.put(a.getAddressId(), a);
+            dbAddrByType.put(a.getIdAddressType(), a);
         }
 
         Set<UUID> keepAddrIds = new HashSet<>();
@@ -148,26 +263,24 @@ public class AddressPhoneServiceImpl implements AddressPhoneService {
         if (request.getAddresses() != null) {
             for (Address ar : request.getAddresses()) {
 
-                // Asegurá el idPerson (por si el front no lo manda bien)
                 ar.setIdPerson(idPerson);
 
                 Address entity;
+                Address existing = dbAddrByType.get(ar.getIdAddressType());
 
-                UUID reqId = ar.getAddressId(); // puede venir null
-                if (reqId != null && dbAddrMap.containsKey(reqId)) {
-                    // existe => update
-                    entity = dbAddrMap.get(reqId);
+                if (existing != null) {
+                    // UPDATE
+                    entity = existing;
                     entity.setUpdateAt(LocalDate.now());
                 } else {
-                    // no existe o viene null => create
+                    // INSERT
                     entity = new Address();
+                    entity.setIdPerson(idPerson);
+                    entity.setIdAddressType(ar.getIdAddressType());
                     entity.setCreateAt(LocalDate.now());
                     entity.setUpdateAt(LocalDate.now());
                 }
 
-                // Copiar campos
-                entity.setIdPerson(idPerson);
-                entity.setIdAddressType(ar.getIdAddressType());
                 entity.setCity(ar.getCity());
                 entity.setCountry(ar.getCountry());
                 entity.setPostalCode(ar.getPostalCode());
@@ -185,15 +298,14 @@ public class AddressPhoneServiceImpl implements AddressPhoneService {
             }
         }
 
-        // borrar lo que ya no viene
+        // DELETE: lo que ya no viene en el request
         for (Address db : dbAddresses) {
             if (!keepAddrIds.contains(db.getAddressId())) {
                 addressRepository.delete(db);
             }
         }
 
-
-        // ===== PHONES =====
+        // ===================== PHONES =====================
         List<Phone> dbPhones = phoneRepository.findByIdPerson(idPerson);
         Map<UUID, Phone> dbPhoneMap = new HashMap<>();
         for (Phone p : dbPhones) {
@@ -212,15 +324,17 @@ public class AddressPhoneServiceImpl implements AddressPhoneService {
                 UUID reqId = pn.getPhoneId();
 
                 if (reqId != null && dbPhoneMap.containsKey(reqId)) {
+                    // UPDATE
                     entity = dbPhoneMap.get(reqId);
                     entity.setUpdateAt(LocalDate.now());
                 } else {
+                    // INSERT
                     entity = new Phone();
+                    entity.setIdPerson(idPerson);
                     entity.setCreateAt(LocalDate.now());
                     entity.setUpdateAt(LocalDate.now());
                 }
 
-                entity.setIdPerson(idPerson);
                 entity.setIdPhoneType(pn.getIdPhoneType());
                 entity.setPhoneNumber(pn.getPhoneNumber());
                 entity.setEnabled(pn.getEnabled());
@@ -232,6 +346,7 @@ public class AddressPhoneServiceImpl implements AddressPhoneService {
             }
         }
 
+        // DELETE phones que ya no vienen
         for (Phone db : dbPhones) {
             if (!keepPhoneIds.contains(db.getPhoneId())) {
                 phoneRepository.delete(db);
@@ -442,11 +557,14 @@ public class AddressPhoneServiceImpl implements AddressPhoneService {
         Map<String, Object> params = new HashMap<>();
         params.put("id", id);
 
-        return webClientBuilder.get()
-                .uri("http://msvc-catalog" + uri + "/{id}", params)
-                .accept(MediaType.APPLICATION_JSON)
+        System.out.println("http://MSVC-CATALOG" + uri + "/{id}");
+        System.out.println(params.get("id"));
+
+        return Optional.ofNullable(webClientBuilder.build()
+                .get()
+                .uri("http://MSVC-CATALOG" + uri + "/{id}", params)
                 .retrieve()
-                .bodyToMono(responseType) // Se usa el parámetro Class<T>
-                .blockOptional();
+                .bodyToMono(responseType)
+                .block());
     }
 }

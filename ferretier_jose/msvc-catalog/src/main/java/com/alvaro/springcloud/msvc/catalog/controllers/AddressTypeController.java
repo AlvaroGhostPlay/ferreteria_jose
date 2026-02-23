@@ -12,7 +12,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 
-@CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping("/address-type")
 public class AddressTypeController {

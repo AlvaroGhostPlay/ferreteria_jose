@@ -5,23 +5,16 @@ import org.springframework.cloud.client.loadbalancer.reactive.ReactorLoadBalance
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 
 @Configuration
 public class WebClientConfig {
     @Value("${config.baseurl.endpoint.msvc-catalog}")
     private String url;
 
+    @LoadBalanced
     @Bean
     public WebClient.Builder webClientBuilder() {
         return WebClient.builder();
-    }
-
-    @Bean
-    public WebClient webClient(WebClient.Builder builder,
-                               ReactorLoadBalancerExchangeFilterFunction lbFunction) {
-        return builder
-                .baseUrl(url)
-                .filter(lbFunction)
-                .build();
     }
 }

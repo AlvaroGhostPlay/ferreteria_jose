@@ -36,7 +36,7 @@ public class PersonServiceImpl implements PersonService {
     private PersonNaturalRepository personNaturalRepository;
 
     @Autowired
-    private WebClient webClientBuilder;
+    private WebClient.Builder webClientBuilder;
 
     @Transactional(readOnly = true)
     @Override
@@ -264,7 +264,8 @@ public class PersonServiceImpl implements PersonService {
         Map<String, Object> params = new HashMap<>();
         params.put("id", id);
 
-        return webClientBuilder.get()
+        return webClientBuilder.build()
+                .get()
                 .uri("http://msvc-catalog" + uri + "/{id}", params)
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
@@ -277,9 +278,9 @@ public class PersonServiceImpl implements PersonService {
         Map<String, Object> params = new HashMap<>();
         params.put("id", id);
 
-        return (List<T>) webClientBuilder.get()
+        return (List<T>) webClientBuilder.build()
+                .get()
                 .uri("http://msvc-info-person" + uri + "/{id}", params)
-                .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
                 .bodyToMono(responseType)
                 .block();

@@ -81,6 +81,20 @@ spring:
               - StripPrefix=2
               - TokenRelay
 
+          - id: msvc-warehouse
+            uri: lb://msvc-warehouse
+            predicates:
+              - Path=/api/warehouse/**
+            filters:
+              - StripPrefix=2
+
+          - id: msvc-products-invoices
+            uri: lb://msvc-products-invoices
+            predicates:
+              - Path=/api/products-invoices/**
+            filters:
+              - StripPrefix=2
+
 
   security:
     oauth2:
