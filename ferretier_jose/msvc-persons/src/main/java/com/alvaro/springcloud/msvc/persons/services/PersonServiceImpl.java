@@ -72,6 +72,16 @@ public class PersonServiceImpl implements PersonService {
 
     @Transactional(readOnly = true)
     @Override
+    public List<PersonDTO> findAllPersonsByNameOrDocument(String term) {
+        List<Person> listPersons = personRepository.findByNameContainingIgnoreCaseOrPersonDocumentContainingIgnoreCase(term, term);
+
+        return listPersons.stream().map(person -> {
+            return getPersonDTO(person);
+        }).toList();
+    }
+
+    @Transactional(readOnly = true)
+    @Override
     public List<PersonDataResponseDto> findAllPersonsSupplier() {
         return mapList(personRepository::findByIsSupplier);
     }

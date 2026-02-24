@@ -17,6 +17,7 @@ public interface PersonService {
     Optional<PersonName> findPersonNameById(UUID id);
 
     Page<PersonDTO> findAllPersonsClients(Pageable pageable);
+    List<PersonDTO> findAllPersonsByNameOrDocument(String term);
 
     List<PersonDataResponseDto> findAllPersonsSupplier();
     Page<PersonDataResponseDto> findAllPersonsSupplier(Pageable pageable);

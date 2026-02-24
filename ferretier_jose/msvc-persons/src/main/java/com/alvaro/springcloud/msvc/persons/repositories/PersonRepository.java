@@ -47,4 +47,6 @@ public interface PersonRepository extends JpaRepository<Person, UUID> {
             where p.email = :email
         """)
     Optional<Person> findByEmail(@Param("email") String email);
+
+    List<Person> findByNameContainingIgnoreCaseOrPersonDocumentContainingIgnoreCase(String name, String document);
 }

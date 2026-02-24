@@ -31,6 +31,12 @@ public class PersonController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    @GetMapping("/searchClients")
+    public ResponseEntity<?> searchClients(@RequestParam String term){
+        return ResponseEntity.ok().body(personService.findAllPersonsByNameOrDocument(term));
+    }
+
+
     @GetMapping("/person-clients/{page}")
     public ResponseEntity<?> getPersonsClients(@PathVariable int page){
         Pageable pageable = PageRequest.of(page, 10);
