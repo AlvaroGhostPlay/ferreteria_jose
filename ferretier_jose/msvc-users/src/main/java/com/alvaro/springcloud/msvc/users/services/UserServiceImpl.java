@@ -54,8 +54,18 @@ public class UserServiceImpl implements UserService {
 
     @Transactional(readOnly = true)
     @Override
-    public Page<User> findAll(Pageable page) {
-        return userRepository.findAll(page);
+    public Page<UserResponseDTO> findAll(Pageable page) {
+        return userRepository.findAll(page).map(user ->{
+            return new UserResponseDTO(
+                user.getUserId(),
+                user.getUsername(),
+                user.getEnabled(),
+                user.getMostChangePass(),
+                user.getCreatedAt(),
+                user.getPassUpdateAt(),
+                user.getRoles()
+            );
+        });
     }
 
     @Transactional(readOnly = true)

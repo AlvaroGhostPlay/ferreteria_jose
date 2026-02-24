@@ -28,10 +28,9 @@ public class SecurityConfig {
                             .pathMatchers(HttpMethod.GET,"/authorized/**").permitAll()
                             .pathMatchers(HttpMethod.POST, "/login").permitAll()
                             .pathMatchers("/oauth2/**", "/login/**").permitAll()
-                            .pathMatchers("/api/persons/**").hasAuthority("ROLE_ROLE_EMPLEADO")
-                            .pathMatchers("/api/users/**").hasAuthority("ROLE_ROLE_EMPLEADO")
-                            .pathMatchers("/api/warehouse/**").hasAuthority("ROLE_ROLE_EMPLEADO")
-                            .pathMatchers("/api/persons/**").hasAuthority("ROLE_ROLE_EMPLOYEE")
+                            .pathMatchers("/api/persons/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_EMPLOYEE")
+                            .pathMatchers("/api/users/**").hasAuthority("ROLE_ADMIN")
+                            .pathMatchers("/api/warehouse/**").hasAuthority("ROLE_EMPLOYEE")
                             .anyExchange().authenticated();
                 })
                 .cors(withDefaults())

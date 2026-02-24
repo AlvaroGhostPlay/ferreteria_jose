@@ -17,7 +17,7 @@ public interface UserService {
     List<User> findAll();
     Optional<UserResponseDTO> update(User user, UUID id);
     Optional<UserResponseDTO> delete(UUID id);
-    Page<User> findAll(Pageable page);
+    Page<UserResponseDTO> findAll(Pageable page);
     Optional<User> findById(UUID id);
     Optional<User> changePass(UserDTO user, UUID id);
 }
