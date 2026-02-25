@@ -29,6 +29,7 @@ public class SecurityConfig {
                             .pathMatchers(HttpMethod.POST, "/login").permitAll()
                             .pathMatchers("/oauth2/**", "/login/**").permitAll()
                             .pathMatchers("/api/persons/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_EMPLOYEE", "ROLE_ROLE_EMPLEADO")
+                            .pathMatchers("/api/products-invoices/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_EMPLOYEE", "ROLE_ROLE_EMPLEADO")
                             .pathMatchers("/api/users/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_ROLE_EMPLEADO")
                             .pathMatchers("/api/warehouse/**").hasAuthority("ROLE_EMPLOYEE")
                             .anyExchange().authenticated();

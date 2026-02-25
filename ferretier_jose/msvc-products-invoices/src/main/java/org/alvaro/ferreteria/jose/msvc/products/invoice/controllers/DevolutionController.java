@@ -15,7 +15,6 @@ import java.util.UUID;
 
 @RequestMapping("/devolution")
 @RestController
-@CrossOrigin("http://localhost:4200")
 public class DevolutionController {
 
     @Autowired

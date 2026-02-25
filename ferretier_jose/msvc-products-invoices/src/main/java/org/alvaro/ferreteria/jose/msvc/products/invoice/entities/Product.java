@@ -1,7 +1,6 @@
 package org.alvaro.ferreteria.jose.msvc.products.invoice.entities;
 
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.UUID;
 
 import jakarta.persistence.Column;

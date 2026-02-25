@@ -15,7 +15,6 @@ import java.util.UUID;
 
 @RequestMapping("/invoice")
 @RestController
-@CrossOrigin("http://localhost:4200")
 public class InvoiceController {
 
     @Autowired
