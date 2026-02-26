@@ -10,8 +10,8 @@ public record ProductDTO(
     String descriptionProduct,
     String image,
     String code,
-    Category category,
-    Brand brand,
+    CategoryDTO category,
+    BrandDTO brand,
     Double price,
     Double iva,
     Integer stock

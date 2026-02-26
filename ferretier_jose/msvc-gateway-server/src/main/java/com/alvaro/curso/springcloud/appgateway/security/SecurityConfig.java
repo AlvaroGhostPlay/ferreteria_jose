@@ -32,6 +32,7 @@ public class SecurityConfig {
                             .pathMatchers("/api/products-invoices/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_EMPLOYEE", "ROLE_ROLE_EMPLEADO")
                             .pathMatchers("/api/users/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_ROLE_EMPLEADO")
                             .pathMatchers("/api/warehouse/**").hasAuthority("ROLE_EMPLOYEE")
+                            .pathMatchers("/api/category/**").hasAnyRole("ROLE_ADMIN", "ROLE_EMPLOYEE", "ROLE_ROLE_EMPLEADO")
                             .anyExchange().authenticated();
                 })
                 .cors(withDefaults())

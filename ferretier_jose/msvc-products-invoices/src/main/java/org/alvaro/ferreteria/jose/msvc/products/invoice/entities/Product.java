@@ -54,7 +54,18 @@ public class Product {
 
     @Column(name = "image")
     private String image;
-    
+
+    @NotBlank
+    @Column(name = "code")
+    private String code;
+
+    public @NotBlank String getCode() {
+        return code;
+    }
+
+    public void setCode(@NotBlank String code) {
+        this.code = code;
+    }
 
     public UUID getProductId() {
         return productId;

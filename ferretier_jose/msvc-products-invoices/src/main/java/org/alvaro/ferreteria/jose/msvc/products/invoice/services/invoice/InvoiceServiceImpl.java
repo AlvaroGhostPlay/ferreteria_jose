@@ -1,30 +1,23 @@
 package org.alvaro.ferreteria.jose.msvc.products.invoice.services.invoice;
 
-import java.util.*;
-
 import org.alvaro.ferreteria.jose.msvc.products.invoice.dto.request.InvoiceRequest;
-import org.alvaro.ferreteria.jose.msvc.products.invoice.dto.response.Brand;
-import org.alvaro.ferreteria.jose.msvc.products.invoice.dto.response.InvoiceDTO;
-import org.alvaro.ferreteria.jose.msvc.products.invoice.dto.response.InvoiceDetailDTO;
-import org.alvaro.ferreteria.jose.msvc.products.invoice.dto.response.InvoiceResponse;
-import org.alvaro.ferreteria.jose.msvc.products.invoice.dto.response.ProductDTO;
+import org.alvaro.ferreteria.jose.msvc.products.invoice.dto.response.*;
 import org.alvaro.ferreteria.jose.msvc.products.invoice.entities.Invoice;
 import org.alvaro.ferreteria.jose.msvc.products.invoice.entities.InvoiceDetail;
-import org.alvaro.ferreteria.jose.msvc.products.invoice.keys.InvoiceDetailId;
 import org.alvaro.ferreteria.jose.msvc.products.invoice.entities.Product;
-import org.alvaro.ferreteria.jose.msvc.products.invoice.repositories.InvoiceDetailRepository;
+import org.alvaro.ferreteria.jose.msvc.products.invoice.keys.InvoiceDetailId;
 import org.alvaro.ferreteria.jose.msvc.products.invoice.repositories.InvoiceRepository;
 import org.alvaro.ferreteria.jose.msvc.products.invoice.repositories.ProductRepository;
+import org.alvaro.ferreteria.jose.msvc.products.invoice.services.Mapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
-import jakarta.validation.constraints.NotNull;
-import jakarta.ws.rs.core.MediaType;
+import java.util.UUID;
 
 @Service
 public class InvoiceServiceImpl implements InvoiceService {
@@ -36,124 +29,110 @@ public class InvoiceServiceImpl implements InvoiceService {
     private ProductRepository productRepository;
 
     @Autowired
-    private InvoiceDetailRepository invoiceDetailRepository;
-
-    @Autowired
-    private WebClient.Builder clientBuilder;
+    private Mapper mapper;
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<InvoiceResponse> getInvoice(UUID idInvoice) {
-        Optional<Invoice> invoice = this.invoiceRepository.findInvoiceWithDetails(idInvoice);
-        if (invoice.isPresent()) {
-            InvoiceDTO invoiceDTO = createInvoiceDTO(invoice.get());
-            List<InvoiceDetailDTO> invoiceDetails = invoice.get().getDetails()
-                    .stream()
-                    .map(this::createInvoiceDetailDTO)
-                    .toList();
-            return Optional.of(new InvoiceResponse(invoiceDTO, invoiceDetails));
-        }
-        return Optional.empty();
+    public Mono<InvoiceResponse> getInvoice(UUID idInvoice) {
+        return Mono.fromCallable(() -> invoiceRepository.findInvoiceWithDetails(idInvoice))
+                .subscribeOn(Schedulers.boundedElastic())
+                .flatMap(opt -> {
+                    if (opt.isEmpty()) return Mono.empty();
+
+                    Invoice invoice = opt.get();
+                    InvoiceDTO invoiceDTO = createInvoiceDTO(invoice);
+
+                    return Flux.fromIterable(invoice.getDetails())
+                            .flatMap(this::createInvoiceDetailDTO) // ahora devuelve Mono<InvoiceDetailDTO>
+                            .collectList()
+                            .map(details -> new InvoiceResponse(invoiceDTO, details));
+                });
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<InvoiceDTO> getHistorialByEmployee(UUID idEmployeee) {
-        List<Invoice> invoicesPage = this.invoiceRepository.findAllInvoiceByEmployeeList(idEmployeee);
-        return invoicesPage.stream().map(this::createInvoiceDTO).toList();
+    public Flux<InvoiceDTO> getHistorialByEmployee(UUID idEmployeee) {
+        return Mono.fromCallable(() -> invoiceRepository.findAllInvoiceByEmployeeList(idEmployeee))
+                .subscribeOn(Schedulers.boundedElastic())
+                .flatMapMany(list -> Flux.fromIterable(list).map(this::createInvoiceDTO));
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Page<InvoiceDTO> getHistorialByEmployee(Pageable pageable, UUID idEmployee) {
-        Page<Invoice> invoicesPage = this.invoiceRepository.findByIdEmplyeeOrderByDateAsc(idEmployee, pageable);
-        return invoicesPage.map(this::createInvoiceDTO);
+    public Mono<Page<InvoiceDTO>> getHistorialByEmployee(Pageable pageable, UUID idEmployee) {
+        return Mono.fromCallable(() -> invoiceRepository.findByIdEmplyeeOrderByDateAsc(idEmployee, pageable))
+                .subscribeOn(Schedulers.boundedElastic())
+                .map(page -> page.map(this::createInvoiceDTO));
     }
 
-    @Transactional(readOnly = true)
     @Override
-    public Page<InvoiceDTO> getHistorialByAdmin(Pageable pageable) {
-        Page<Invoice> invoicesPage = this.invoiceRepository.findAllByOrderByDateAsc(pageable);
-        return invoicesPage.map(this::createInvoiceDTO);
+    @Transactional(readOnly = true)
+    public Mono<Page<InvoiceDTO>> getHistorialByAdmin(Pageable pageable) {
+        return Mono.fromCallable(() -> invoiceRepository.findAllByOrderByDateAsc(pageable))
+                .subscribeOn(Schedulers.boundedElastic())
+                .map(page -> page.map(this::createInvoiceDTO));
     }
 
     @Override
     @Transactional
-    public Optional<InvoiceResponse> saveInvoice(InvoiceRequest requestInvoice) {
-        int correlative = 1;
-        Invoice invoice = new Invoice();
-        invoice.setIva(requestInvoice.invoice().getIva());
-        invoice.setSubTotal(requestInvoice.invoice().getSubTotal());
-        invoice.setTotal(requestInvoice.invoice().getTotal());
-        invoice.setIdClient(requestInvoice.invoice().getIdClient());
-        invoice.setIdEmplyee(requestInvoice.invoice().getIdEmplyee());
-        invoice.setIdMethodPaymment(requestInvoice.invoice().getIdMethodPaymment());
-        invoice.setInvoiceNumber(requestInvoice.invoice().getInvoiceNumber());
-        invoice.setDate(requestInvoice.invoice().getDate());
+    public Mono<InvoiceResponse> saveInvoice(InvoiceRequest requestInvoice) {
+        return Mono.fromCallable(() -> {
+                    int correlative = 1;
 
-        invoice.setState(requestInvoice.invoice().getState());
+                    Invoice invoice = new Invoice();
+                    invoice.setIva(requestInvoice.invoice().getIva());
+                    invoice.setSubTotal(requestInvoice.invoice().getSubTotal());
+                    invoice.setTotal(requestInvoice.invoice().getTotal());
+                    invoice.setIdClient(requestInvoice.invoice().getIdClient());
+                    invoice.setIdEmplyee(requestInvoice.invoice().getIdEmplyee());
+                    invoice.setIdMethodPaymment(requestInvoice.invoice().getIdMethodPaymment());
+                    invoice.setInvoiceNumber(requestInvoice.invoice().getInvoiceNumber());
+                    invoice.setDate(requestInvoice.invoice().getDate());
+                    invoice.setState(requestInvoice.invoice().getState());
 
-        for (var d : requestInvoice.details()) {
+                    for (var d : requestInvoice.details()) {
 
-            InvoiceDetailId id = new InvoiceDetailId();
-            id.setCorrelative(correlative++);
-            InvoiceDetail detail = new InvoiceDetail();
+                        InvoiceDetailId id = new InvoiceDetailId();
+                        id.setCorrelative(correlative++);
 
-            // (a) ID compuesto (si lo usas)
-            detail.setId(id);
+                        InvoiceDetail detail = new InvoiceDetail();
+                        detail.setId(id);
 
-            // (b) Campos
-            detail.setQuantity(d.getQuantity());
-            detail.setIva(d.getIva());
-            detail.setSubTotal(d.getSubTotal());
-            detail.setTotal(d.getTotal());
+                        detail.setQuantity(d.getQuantity());
+                        detail.setIva(d.getIva());
+                        detail.setSubTotal(d.getSubTotal());
+                        detail.setTotal(d.getTotal());
 
-            // (c) Producto: si solo tenés el UUID, usa referencia (no hace SELECT)
-            Product productRef = productRepository.getReferenceById(d.getProduct().getProductId());
-            detail.setProduct(productRef);
+                        Product productRef = productRepository.getReferenceById(d.getProduct().getProductId());
+                        detail.setProduct(productRef);
 
-            // (d) Asociar detalle a la factura (esto setea detail.invoice)
-            invoice.addDetail(detail);
-        }
+                        invoice.addDetail(detail);
+                    }
 
-        // 3) Guardar: por cascade se guardan invoice + details
-        Invoice saved = invoiceRepository.save(invoice);
-        List<InvoiceDetail> detalisSave = saved.getDetails();
+                    return invoiceRepository.save(invoice);
+                })
+                .subscribeOn(Schedulers.boundedElastic())
+                .flatMap(saved -> {
+                    InvoiceDTO invoiceDTO = createInvoiceDTO(saved);
 
-        List<InvoiceDetailDTO> details = detalisSave.stream().map(this::createInvoiceDetailDTO).toList();
-
-        // 4) Mapear respuesta
-        return Optional.of(new InvoiceResponse(createInvoiceDTO(saved), details));
+                    return Flux.fromIterable(saved.getDetails())
+                            .flatMap(this::createInvoiceDetailDTO)
+                            .collectList()
+                            .map(details -> new InvoiceResponse(invoiceDTO, details));
+                });
     }
 
-    private InvoiceDetailDTO createInvoiceDetailDTO(InvoiceDetail detail) {
-        ProductDTO productDTO = createProductDTO(detail.getProduct());
-        return new InvoiceDetailDTO(
-                detail.getId().getInvoiceId(),
-                detail.getId().getCorrelative(),
-                productDTO,
-                detail.getSubTotal(),
-                detail.getIva(),
-                detail.getTotal(),
-                detail.getQuantity());
-    }
-
-    private ProductDTO createProductDTO(Product product) {
-        String uri = "/brand";
-
-        Optional<?> document = getCatalog(uri, product.getIdBrand(), Brand.class);
-        Brand brand = null;
-        if (document.isPresent()) {
-            brand = (Brand) document.get();
-        }
-
-        return new ProductDTO(
-                product.getProductId(),
-                product.getProductName(),
-                product.getExpirationDate(),
-                product.getDescriptionProduct()),
-                brand
-                ;
+    private Mono<InvoiceDetailDTO> createInvoiceDetailDTO(InvoiceDetail detail) {
+        return mapper.createProductDTO(detail.getProduct())
+                .map(productDTO -> new InvoiceDetailDTO(
+                        detail.getId().getInvoiceId(),
+                        detail.getId().getCorrelative(),
+                        productDTO,
+                        detail.getSubTotal(),
+                        detail.getIva(),
+                        detail.getTotal(),
+                        detail.getQuantity()
+                ));
     }
 
     private InvoiceDTO createInvoiceDTO(Invoice invoice) {
@@ -167,20 +146,7 @@ public class InvoiceServiceImpl implements InvoiceService {
                 invoice.getState(),
                 invoice.getDate(),
                 invoice.getIdMethodPaymment(),
-                invoice.getInvoiceNumber());
-    }
-
-    @NotNull
-    private <T> Optional<T> getCatalog(String uri, Object id, Class<T>responseType) {
-        Map<String, Object> params = new HashMap<>();
-        params.put("id", id);
-
-        return clientBuilder.build()
-                .get()
-                .uri("http://msvc-catalog" + uri + "/{id}", params)
-                .retrieve()
-                .accept(MediaType.APPLICATION_JSON)
-                .bodyToMono(responseType) // Se usa el parámetro Class<T>
-                .blockOptional();
+                invoice.getInvoiceNumber()
+        );
     }
 }

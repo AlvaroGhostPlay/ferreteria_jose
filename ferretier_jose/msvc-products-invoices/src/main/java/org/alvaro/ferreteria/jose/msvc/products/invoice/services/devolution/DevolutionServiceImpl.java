@@ -1,24 +1,23 @@
 package org.alvaro.ferreteria.jose.msvc.products.invoice.services.devolution;
 
 import org.alvaro.ferreteria.jose.msvc.products.invoice.dto.request.CreateDevolutionRequest;
-import org.alvaro.ferreteria.jose.msvc.products.invoice.dto.response.DevolutionDTO;
-import org.alvaro.ferreteria.jose.msvc.products.invoice.dto.response.DevolutionDetailDTO;
-import org.alvaro.ferreteria.jose.msvc.products.invoice.dto.response.DevolutionResponse;
-import org.alvaro.ferreteria.jose.msvc.products.invoice.dto.response.ProductDTO;
+import org.alvaro.ferreteria.jose.msvc.products.invoice.dto.response.*;
 import org.alvaro.ferreteria.jose.msvc.products.invoice.entities.Devolution;
 import org.alvaro.ferreteria.jose.msvc.products.invoice.entities.DevolutionDetail;
 import org.alvaro.ferreteria.jose.msvc.products.invoice.entities.Product;
 import org.alvaro.ferreteria.jose.msvc.products.invoice.keys.DevolutionDetailId;
 import org.alvaro.ferreteria.jose.msvc.products.invoice.repositories.DevolutionRepository;
 import org.alvaro.ferreteria.jose.msvc.products.invoice.repositories.ProductRepository;
+import org.alvaro.ferreteria.jose.msvc.products.invoice.services.Mapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
-import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -30,120 +29,122 @@ public class DevolutionServiceImpl implements DevolutionService {
     @Autowired
     private ProductRepository productRepository;
 
+    @Autowired
+    private Mapper mapper;
+
     @Transactional(readOnly = true)
     @Override
-    public List<DevolutionDTO> getDevolutionsListByEmployee(UUID employeeId) {
-        return this.devolutionRepository.findByIdEmployeeOrderByDateAsc(employeeId)
-                .stream()
-                .map(this::convertDevolutionToDevolutionDTO)
-                .toList();
+    public Flux<DevolutionDTO> getDevolutionsListByEmployee(UUID employeeId) {
+        return Mono.fromCallable(() -> devolutionRepository.findByIdEmployeeOrderByDateAsc(employeeId))
+                .subscribeOn(Schedulers.boundedElastic())
+                .flatMapMany(list -> Flux.fromIterable(list).map(this::convertDevolutionToDevolutionDTO));
     }
 
     @Transactional(readOnly = true)
     @Override
-    public Page<DevolutionDTO> getDevolutionsPageByEmployee(Pageable pageable, UUID employeeId) {
-        return this.devolutionRepository.findByIdEmployeeOrderByDateAsc(employeeId, pageable)
-                .map(this::convertDevolutionToDevolutionDTO);
+    public Mono<Page<DevolutionDTO>> getDevolutionsPageByEmployee(Pageable pageable, UUID employeeId) {
+        return Mono.fromCallable(() -> devolutionRepository.findByIdEmployeeOrderByDateAsc(employeeId, pageable))
+                .subscribeOn(Schedulers.boundedElastic())
+                .map(page -> page.map(this::convertDevolutionToDevolutionDTO));
     }
 
     @Transactional(readOnly = true)
     @Override
-    public Page<DevolutionDTO> getDevolutionsPage(Pageable pageable) {
-        return this.devolutionRepository.findAllByOrderByDateAsc(pageable).map(this::convertDevolutionToDevolutionDTO);
+    public Mono<Page<DevolutionDTO>> getDevolutionsPage(Pageable pageable) {
+        return Mono.fromCallable(() -> devolutionRepository.findAllByOrderByDateAsc(pageable))
+                .subscribeOn(Schedulers.boundedElastic())
+                .map(page -> page.map(this::convertDevolutionToDevolutionDTO));
     }
 
     @Transactional(readOnly = true)
     @Override
-    public List<DevolutionResponse> getDevolutionById(UUID id) {
-        List<Devolution> devolutions = this.devolutionRepository.findByDevolutionIdOrderByDateAsc(id);
-        return devolutions.stream().map(devolution -> {
-            DevolutionDTO devolutionDTO = convertDevolutionToDevolutionDTO(devolution);
-            List<DevolutionDetailDTO> devolutionDetailDTOS = devolution.getDetails().stream().map(this::convertDevolutionToDevolutionDetailDto).toList();
-            return new DevolutionResponse(devolutionDTO, devolutionDetailDTOS);
-        }).toList();
+    public Flux<DevolutionResponse> getDevolutionById(UUID id) {
+        return Mono.fromCallable(() -> devolutionRepository.findByDevolutionIdOrderByDateAsc(id))
+                .subscribeOn(Schedulers.boundedElastic())
+                .flatMapMany(Flux::fromIterable)
+                .flatMap(this::toDevolutionResponse);
     }
 
     @Transactional(readOnly = true)
     @Override
-    public List<DevolutionResponse> getDevolutionByNumberInvoice(String id) {
-        List<Devolution> devolutions = this.devolutionRepository.findByDevolutionNumberOrderByDateAsc(id);
-        return devolutions.stream().map(devolution -> {
-            DevolutionDTO devolutionDTO = convertDevolutionToDevolutionDTO(devolution);
-            List<DevolutionDetailDTO> devolutionDetailDTOS = devolution.getDetails().stream().map(this::convertDevolutionToDevolutionDetailDto).toList();
-            return new DevolutionResponse(devolutionDTO, devolutionDetailDTOS);
-        }).toList();
+    public Flux<DevolutionResponse> getDevolutionByNumberInvoice(String number) {
+        return Mono.fromCallable(() -> devolutionRepository.findByDevolutionNumberOrderByDateAsc(number))
+                .subscribeOn(Schedulers.boundedElastic())
+                .flatMapMany(Flux::fromIterable)
+                .flatMap(this::toDevolutionResponse);
     }
 
     @Transactional
     @Override
-    public Optional<DevolutionResponse> createDevolution(CreateDevolutionRequest req) {
-        // 1) Crear encabezado
-        Devolution dev = new Devolution();
-        dev.setDate(req.devolution().getDate());
-        dev.setInvoiceNumber(req.devolution().getInvoiceNumber());
-        dev.setIdEmployee(req.devolution().getIdEmployee());
-        dev.setReason(req.devolution().getReason());
-        dev.setDevolutionNumber(req.devolution().getDevolutionNumber()); // o generarlo
+    public Mono<DevolutionResponse> createDevolution(CreateDevolutionRequest req) {
+        return Mono.fromCallable(() -> {
+                    Devolution dev = new Devolution();
+                    dev.setDate(req.devolution().getDate());
+                    dev.setInvoiceNumber(req.devolution().getInvoiceNumber());
+                    dev.setIdEmployee(req.devolution().getIdEmployee());
+                    dev.setReason(req.devolution().getReason());
+                    dev.setDevolutionNumber(req.devolution().getDevolutionNumber());
 
-        // 2) Crear detalles
-        int correlative = 1;
+                    int correlative = 1;
+                    for (var line : req.details()) {
+                        DevolutionDetail det = new DevolutionDetail();
 
-        for (var line : req.details()) {
-            DevolutionDetail det = new DevolutionDetail();
+                        DevolutionDetailId id = new DevolutionDetailId();
+                        id.setCorrelative(correlative++);
+                        det.setId(id);
 
-            DevolutionDetailId id = new DevolutionDetailId();
-            id.setCorrelative(correlative++);
-            det.setId(id);
+                        det.setQuantity(line.getQuantity());
+                        det.setIva(line.getIva());
+                        det.setSubTotal(line.getSubTotal());
+                        det.setTotal(line.getTotal());
 
-            det.setQuantity(line.getQuantity());
-            det.setIva(line.getIva());
-            det.setSubTotal(line.getSubTotal());
-            det.setTotal(line.getTotal());
+                        Product productRef = productRepository.getReferenceById(line.getProduct().getProductId());
+                        det.setProduct(productRef);
 
-            Product productRef = productRepository.getReferenceById(line.getProduct().getProductId());
-            det.setProduct(productRef);
+                        dev.addDetail(det);
+                    }
 
-            dev.addDetail(det); // setea det.devolution y por MapsId llenará devolutionId en el id al persistir
-        }
+                    return devolutionRepository.save(dev);
+                })
+                .subscribeOn(Schedulers.boundedElastic())
+                .flatMap(this::toDevolutionResponseSingle);
+    }
 
-        Devolution devolution = devolutionRepository.save(dev);
+    // ---------- Helpers reactivos ----------
 
+    private Mono<DevolutionResponse> toDevolutionResponse(Devolution devolution) {
         DevolutionDTO devolutionDTO = convertDevolutionToDevolutionDTO(devolution);
-        List<DevolutionDetailDTO> devolutionDetailDTOS = devolution.getDetails().stream().map(this::convertDevolutionToDevolutionDetailDto).toList();
 
-        return Optional.of(new DevolutionResponse(devolutionDTO, devolutionDetailDTOS));
+        return Flux.fromIterable(devolution.getDetails())
+                .flatMap(this::convertDevolutionToDevolutionDetailDto) // ahora Mono<DevolutionDetailDTO>
+                .collectList()
+                .map(details -> new DevolutionResponse(devolutionDTO, details));
+    }
 
+    private Mono<DevolutionResponse> toDevolutionResponseSingle(Devolution devolution) {
+        return toDevolutionResponse(devolution);
     }
 
     private DevolutionDTO convertDevolutionToDevolutionDTO(Devolution dev) {
         return new DevolutionDTO(
-          dev.getDevolutionId(),
-          dev.getInvoiceNumber(),
-          dev.getIdEmployee(),
-          dev.getReason(),
-          dev.getState(),
-          dev.getDevolutionNumber(),
-          dev.getDate()
+                dev.getDevolutionId(),
+                dev.getInvoiceNumber(),
+                dev.getIdEmployee(),
+                dev.getReason(),
+                dev.getState(),
+                dev.getDevolutionNumber(),
+                dev.getDate()
         );
     }
 
-    private DevolutionDetailDTO convertDevolutionToDevolutionDetailDto(DevolutionDetail dev) {
-        ProductDTO productDTO = createProductDTO(dev.getProduct());
-        return new DevolutionDetailDTO(
-                dev.getIva(),
-                dev.getSubTotal(),
-                dev.getTotal(),
-                dev.getQuantity(),
-                productDTO
-        );
-    }
-
-    private ProductDTO createProductDTO(Product product){
-        return new ProductDTO(
-                product.getProductId(),
-                product.getProductName(),
-                product.getExpirationDate(),
-                product.getDescriptionProduct()
-        );
+    private Mono<DevolutionDetailDTO> convertDevolutionToDevolutionDetailDto(DevolutionDetail dev) {
+        return mapper.createProductDTO(dev.getProduct())
+                .map(productDTO -> new DevolutionDetailDTO(
+                        dev.getIva(),
+                        dev.getSubTotal(),
+                        dev.getTotal(),
+                        dev.getQuantity(),
+                        productDTO
+                ));
     }
 }
