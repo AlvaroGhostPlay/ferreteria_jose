@@ -60,6 +60,12 @@ public class PersonController {
         return ResponseEntity.ok().body(personService.findAllPersonsSupplier(pageable));
     }
 
+    @GetMapping("/person-suppliers/{page}")
+    public ResponseEntity<?> getPersonsSuppliers(@PathVariable int page){
+        Pageable pageable = PageRequest.of(page, 10);
+        return ResponseEntity.ok().body(personService.findAllPersonsSuppliers(pageable));
+    }
+
     @GetMapping("/employees")
     public ResponseEntity<?> getPersonsEmployees(){
         return ResponseEntity.ok().body(personService.findAllPersonsEmployees());
@@ -69,6 +75,12 @@ public class PersonController {
     public ResponseEntity<?> getPersonsEmployeesPage(@PathVariable int page){
         Pageable pageable = PageRequest.of(page, 10);
         return ResponseEntity.ok().body(personService.findAllPersonsEmployeesPage(pageable));
+    }
+
+    @GetMapping("/person-employyes/{page}")
+    public ResponseEntity<?> getPersonsEmployees(@PathVariable int page){
+        Pageable pageable = PageRequest.of(page, 10);
+        return ResponseEntity.ok().body(personService.findAllPersonsEmployess(pageable));
     }
 
     @GetMapping("/email/{email}")

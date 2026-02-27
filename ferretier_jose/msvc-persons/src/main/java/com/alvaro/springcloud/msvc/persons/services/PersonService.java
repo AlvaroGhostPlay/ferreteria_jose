@@ -30,4 +30,7 @@ public interface PersonService {
     Optional<PersonDataResponseDto> updatePerson(PersonCrudDTO person, UUID id);
     Optional<PersonDataResponseDto> deletePersonById(UUID id);
     Optional<PersonDataResponseDto> findByEmail(String email);
+
+    Page<PersonDTO> findAllPersonsSuppliers(Pageable pageable);
+    Page<PersonDTO> findAllPersonsEmployess(Pageable pageable);
 }

@@ -64,7 +64,24 @@ public class PersonServiceImpl implements PersonService {
     @Override
     public Page<PersonDTO> findAllPersonsClients(Pageable pageable) {
         Page<Person> listPersons = personRepository.findByIsClientPage(pageable);
+        return listPersons.map(person -> {
+            return getPersonDTO(person);
+        });
+    }
 
+    @Transactional(readOnly = true)
+    @Override
+    public Page<PersonDTO> findAllPersonsSuppliers(Pageable pageable) {
+        Page<Person> listPersons = personRepository.findByIsSupplierPage(pageable);
+        return listPersons.map(person -> {
+            return getPersonDTO(person);
+        });
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Page<PersonDTO> findAllPersonsEmployess(Pageable pageable) {
+        Page<Person> listPersons = personRepository.findByIsEmployeePage(pageable);
         return listPersons.map(person -> {
             return getPersonDTO(person);
         });
