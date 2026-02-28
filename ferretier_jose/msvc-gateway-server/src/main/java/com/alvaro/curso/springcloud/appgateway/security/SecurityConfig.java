@@ -29,9 +29,11 @@ public class SecurityConfig {
                             .pathMatchers(HttpMethod.POST, "/login").permitAll()
                             .pathMatchers("/oauth2/**", "/login/**").permitAll()
                             .pathMatchers("/api/persons/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_EMPLOYEE", "ROLE_ROLE_EMPLEADO")
+                            .pathMatchers(HttpMethod.GET,"/api/users/username/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_ROLE_EMPLEADO", "ROLE_EMPLOYEE")
                             .pathMatchers("/api/products-invoices/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_EMPLOYEE", "ROLE_ROLE_EMPLEADO")
                             .pathMatchers("/api/users/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_ROLE_EMPLEADO")
-                            .pathMatchers("/api/warehouse/**").hasAuthority("ROLE_EMPLOYEE")
+                            .pathMatchers(HttpMethod.GET,"/api/warehouse/roles/user/**").hasAnyAuthority("ROLE_EMPLOYEE", "ROLE_ADMIN")
+                            .pathMatchers("/api/warehouse/**").hasAuthority("ROLE_ADMIN")
                             .pathMatchers("/api/category/**").hasAnyRole("ROLE_ADMIN", "ROLE_EMPLOYEE", "ROLE_ROLE_EMPLEADO")
                             .anyExchange().authenticated();
                 })

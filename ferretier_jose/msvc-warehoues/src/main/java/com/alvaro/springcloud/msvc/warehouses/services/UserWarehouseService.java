@@ -18,6 +18,7 @@ public interface UserWarehouseService{
     Optional<UserJobsWarehousesResponse> getUserJobWarehouse(UUID id);
     List<UserJobsWarehousesResponse> getAllUserJobWarehouses();
     Page<UserJobsWarehousesResponse> getUserJobWarehouses(Pageable pageable);
+    Optional<UserWarhouseDTO> getJobRolesByUserId(UUID id);
 
     List<UserWarhouseDTO> getUsersByWarehouse(UUID warehouseId);
     Mono<UserWarhouseDTO> saveUsersByWarehouse(CreateUserWarehouseJobRole warehouseId);

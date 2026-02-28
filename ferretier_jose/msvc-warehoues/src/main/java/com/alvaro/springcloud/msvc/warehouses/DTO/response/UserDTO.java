@@ -7,7 +7,6 @@ import java.util.UUID;
 public record UserDTO(
         UUID userId,
         String username,
-        String password,
         Boolean enabled,
         Boolean mostChangePass,
         LocalDateTime createdAt,

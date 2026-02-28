@@ -92,6 +92,14 @@ spring:
               - Path=/api/products-invoices/**
             filters:
               - StripPrefix=2
+          
+          
+          - id: msvc-navigation-provider
+            uri: lb://msvc-navigation-provider
+            predicates:
+              - Path=/api/navigation/**
+            filters:
+              - StripPrefix=2
 
 
   security:

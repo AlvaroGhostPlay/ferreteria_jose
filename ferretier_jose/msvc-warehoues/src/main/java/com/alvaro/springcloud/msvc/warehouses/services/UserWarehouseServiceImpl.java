@@ -1,10 +1,6 @@
 package com.alvaro.springcloud.msvc.warehouses.services;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -94,6 +90,21 @@ public class UserWarehouseServiceImpl implements UserWarehouseService {
 
         this.userJobRoleWarehouseRepository.save(dat);
         return getUserByIdReactive(id.getIdUser());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<UserWarhouseDTO> getJobRolesByUserId(UUID id) {
+        List<UserDTO> users = new ArrayList<>();
+        Set<JobRoleDTO> uniqueRolesIds = userJobRoleWarehouseRepository.findAllById_IdUser(id)
+                .stream()
+                .map(uw ->  new JobRoleDTO(uw.getId().getIdJobRole(), uw.getJobRole().getJobRole()))
+                .collect(Collectors.toSet());
+        UserWarhouseDTO response = new UserWarhouseDTO(
+                null,
+                uniqueRolesIds
+        );
+        return Optional.of(response);
     }
 
     private UserWarhouseDTO getUserById(UUID userId) {

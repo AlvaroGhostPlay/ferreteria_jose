@@ -36,6 +36,13 @@ public class JobRoleController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getJobRoleByClient(@PathVariable UUID id) {
+        Optional<JobRole> response = jobRoleService.getJobRoleById(id);
+        return response.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
     @PostMapping
     public ResponseEntity<?> save(@RequestBody JobRole request){
         Optional<JobRole> response = jobRoleService.save(request);

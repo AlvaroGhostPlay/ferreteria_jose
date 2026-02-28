@@ -12,6 +12,7 @@ import org.springframework.data.jpa.repository.Query;
 
 public interface UserJobRoleWarehouseRepository extends JpaRepository<UserWarehouse, UserJobRoleWarehouseId> {
     List<UserWarehouse> findAllById_IdWarehouse(UUID warehouseId);
+    List<UserWarehouse> findAllById_IdUser(UUID warehouseId);
 
     @Query("""
             select uwj from UserWarehouse as uwj

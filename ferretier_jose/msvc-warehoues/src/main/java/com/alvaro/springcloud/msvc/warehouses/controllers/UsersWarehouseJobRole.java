@@ -21,7 +21,6 @@ import com.alvaro.springcloud.msvc.warehouses.services.UserWarehouseService;
 import reactor.core.publisher.Mono;
 
 @RestController
-@CrossOrigin("http://localhost:4200")
 @RequestMapping("/roles")
 public class UsersWarehouseJobRole {
     
@@ -31,6 +30,15 @@ public class UsersWarehouseJobRole {
     @GetMapping("/{id}")
     public ResponseEntity<?> getUserByWarehouse(@PathVariable UUID id){
         return ResponseEntity.ok().body(userWarehouseService.getUsersByWarehouse(id));
+    }
+
+    @GetMapping("/user/{id}")
+    public ResponseEntity<?> getUserByUserId(@PathVariable UUID id){
+        Optional<UserWarhouseDTO> response = userWarehouseService.getJobRolesByUserId(id);
+        if (response.isPresent()){
+            return ResponseEntity.ok().body(response.get());
+        }
+        return ResponseEntity.notFound().build();
     }
 
 @PostMapping

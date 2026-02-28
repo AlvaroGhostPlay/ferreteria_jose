@@ -77,7 +77,7 @@ public class PersonController {
         return ResponseEntity.ok().body(personService.findAllPersonsEmployeesPage(pageable));
     }
 
-    @GetMapping("/person-employyes/{page}")
+    @GetMapping("/person-employees/{page}")
     public ResponseEntity<?> getPersonsEmployees(@PathVariable int page){
         Pageable pageable = PageRequest.of(page, 10);
         return ResponseEntity.ok().body(personService.findAllPersonsEmployess(pageable));
